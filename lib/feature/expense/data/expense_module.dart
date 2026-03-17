@@ -1,10 +1,10 @@
 import 'package:dio/dio.dart';
 
-class EventModule {
+class ExpenseModule {
   final Dio _dio;
-  final String baseRoute = '/event';
+  final String baseRoute = '/expense';
 
-  EventModule(this._dio);
+  ExpenseModule(this._dio);
 
   Future<Response> getById(String id) async {
     return await _dio.get('$baseRoute/$id');

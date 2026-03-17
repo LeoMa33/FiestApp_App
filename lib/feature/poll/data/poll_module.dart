@@ -1,17 +1,13 @@
 import 'package:dio/dio.dart';
 
-class EventModule {
+class PollModule {
   final Dio _dio;
-  final String baseRoute = '/event';
+  final String baseRoute = '/poll';
 
-  EventModule(this._dio);
+  PollModule(this._dio);
 
   Future<Response> getById(String id) async {
     return await _dio.get('$baseRoute/$id');
-  }
-
-  Future<Response> patch(String id, dynamic data) async {
-    return await _dio.patch('$baseRoute/$id', data: data);
   }
 
   Future<Response> delete(String id) async {
@@ -22,7 +18,11 @@ class EventModule {
     return await _dio.get(baseRoute);
   }
 
-  Future<Response> post(dynamic data) async {
+  Future<Response> add(dynamic data) async {
     return await _dio.post(baseRoute, data: data);
+  }
+
+  Future<Response> vote(dynamic data) async {
+    return await _dio.post('$baseRoute/votes', data: data);
   }
 }

@@ -1,27 +1,24 @@
 import 'package:dio/dio.dart';
-import 'package:fiestapp/feature/user/domain/models/user.dart';
 
 class UserModule {
   final Dio _dio;
+  final String baseRoute = '/user';
+
   UserModule(this._dio);
 
-  Future<User> getMe() async {
-    try {
-      final response = await _dio.get('/users/me');
-      return User.fromJson(response.data);
-    } on DioException catch (e) {
-      throw _handleError(e);
-    }
+  Future<Response> getMe() async {
+    return await _dio.get('$baseRoute/me');
   }
 
-  Future<User> updateProfile(Map<String, dynamic> data) async {
-    final response = await _dio.patch('/users/update', data: data);
-    return User.fromJson(response.data);
+  Future<Response> post(dynamic data) async {
+    return await _dio.post(baseRoute, data: data);
   }
 
-  Exception _handleError(DioException e) {
-    if (e.response?.statusCode == 404)
-      return Exception("Utilisateur non trouvé");
-    return Exception("Une erreur réseau est survenue");
+  Future<Response> patch(String id, dynamic data) async {
+    return await _dio.patch('$baseRoute/$id', data: data);
+  }
+
+  Future<Response> delete(String id) async {
+    return await _dio.delete('$baseRoute/$id');
   }
 }

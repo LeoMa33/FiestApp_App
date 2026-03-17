@@ -1,10 +1,10 @@
 import 'package:dio/dio.dart';
 
-class EventModule {
+class TransportModule {
   final Dio _dio;
-  final String baseRoute = '/event';
+  final String baseRoute = '/transport';
 
-  EventModule(this._dio);
+  TransportModule(this._dio);
 
   Future<Response> getById(String id) async {
     return await _dio.get('$baseRoute/$id');
@@ -22,7 +22,15 @@ class EventModule {
     return await _dio.get(baseRoute);
   }
 
-  Future<Response> post(dynamic data) async {
+  Future<Response> add(dynamic data) async {
     return await _dio.post(baseRoute, data: data);
+  }
+
+  Future<Response> join(String id) async {
+    return await _dio.post('$baseRoute/join/$id');
+  }
+
+  Future<Response> leave(String id) async {
+    return await _dio.post('$baseRoute/leave/$id');
   }
 }
