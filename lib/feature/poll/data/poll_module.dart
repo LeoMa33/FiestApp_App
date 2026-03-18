@@ -1,4 +1,7 @@
 import 'package:dio/dio.dart';
+import 'package:fiestapp/feature/poll/data/dto/poll_create_dto.dart';
+import 'package:fiestapp/feature/poll/data/dto/poll_dto.dart';
+import 'package:fiestapp/feature/poll/data/dto/vote_dto.dart';
 
 class PollModule {
   final Dio _dio;
@@ -6,23 +9,27 @@ class PollModule {
 
   PollModule(this._dio);
 
-  Future<Response> getById(String id) async {
-    return await _dio.get('$baseRoute/$id');
+  Future<List<PollDto>> getAll() async {
+    final response = await _dio.get(baseRoute);
+    final List<dynamic> data = response.data;
+    return data.map((json) => PollDto.fromJson(json)).toList();
   }
 
-  Future<Response> delete(String id) async {
-    return await _dio.delete('$baseRoute/$id');
+  Future<PollDto> getById(String id) async {
+    final response = await _dio.get('$baseRoute/$id');
+    return PollDto.fromJson(response.data);
   }
 
-  Future<Response> get() async {
-    return await _dio.get(baseRoute);
+  Future<PollDto> add(PollCreateDto dto) async {
+    final response = await _dio.post(baseRoute, data: dto.toJson());
+    return PollDto.fromJson(response.data);
   }
 
-  Future<Response> add(dynamic data) async {
-    return await _dio.post(baseRoute, data: data);
+  Future<void> vote(VotesDto dto) async {
+    await _dio.post('$baseRoute/votes', data: dto.toJson());
   }
 
-  Future<Response> vote(dynamic data) async {
-    return await _dio.post('$baseRoute/votes', data: data);
+  Future<void> delete(String id) async {
+    await _dio.delete('$baseRoute/$id');
   }
 }

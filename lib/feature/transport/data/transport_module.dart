@@ -1,4 +1,7 @@
 import 'package:dio/dio.dart';
+import 'package:fiestapp/feature/transport/data/dto/transport_create_dto.dart';
+import 'package:fiestapp/feature/transport/data/dto/transport_dto.dart';
+import 'package:fiestapp/feature/transport/data/dto/transport_update_dto.dart';
 
 class TransportModule {
   final Dio _dio;
@@ -6,31 +9,38 @@ class TransportModule {
 
   TransportModule(this._dio);
 
-  Future<Response> getById(String id) async {
-    return await _dio.get('$baseRoute/$id');
+  Future<List<TransportDto>> getAll() async {
+    final response = await _dio.get(baseRoute);
+    final List<dynamic> data = response.data;
+    return data.map((json) => TransportDto.fromJson(json)).toList();
   }
 
-  Future<Response> patch(String id, dynamic data) async {
-    return await _dio.patch('$baseRoute/$id', data: data);
+  Future<TransportDto> getById(String id) async {
+    final response = await _dio.get('$baseRoute/$id');
+    return TransportDto.fromJson(response.data);
   }
 
-  Future<Response> delete(String id) async {
-    return await _dio.delete('$baseRoute/$id');
+  Future<TransportDto> add(TransportCreateDto dto) async {
+    final response = await _dio.post(baseRoute, data: dto.toJson());
+    return TransportDto.fromJson(response.data);
   }
 
-  Future<Response> get() async {
-    return await _dio.get(baseRoute);
+  Future<TransportDto> patch(String id, TransportUpdateDto dto) async {
+    final response = await _dio.patch('$baseRoute/$id', data: dto.toJson());
+    return TransportDto.fromJson(response.data);
   }
 
-  Future<Response> add(dynamic data) async {
-    return await _dio.post(baseRoute, data: data);
+  Future<void> delete(String id) async {
+    await _dio.delete('$baseRoute/$id');
   }
 
-  Future<Response> join(String id) async {
-    return await _dio.post('$baseRoute/join/$id');
+  Future<TransportDto> join(String id) async {
+    final response = await _dio.post('$baseRoute/join/$id');
+    return TransportDto.fromJson(response.data);
   }
 
-  Future<Response> leave(String id) async {
-    return await _dio.post('$baseRoute/leave/$id');
+  Future<TransportDto> leave(String id) async {
+    final response = await _dio.post('$baseRoute/leave/$id');
+    return TransportDto.fromJson(response.data);
   }
 }

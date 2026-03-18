@@ -1,4 +1,7 @@
 import 'package:dio/dio.dart';
+import 'package:fiestapp/feature/user/data/dto/user_create_dto.dart';
+import 'package:fiestapp/feature/user/data/dto/user_dto.dart';
+import 'package:fiestapp/feature/user/data/dto/user_update_dto.dart';
 
 class UserModule {
   final Dio _dio;
@@ -6,19 +9,22 @@ class UserModule {
 
   UserModule(this._dio);
 
-  Future<Response> getMe() async {
-    return await _dio.get('$baseRoute/me');
+  Future<UserDto> getMe() async {
+    final response = await _dio.get('$baseRoute/me');
+    return UserDto.fromJson(response.data);
   }
 
-  Future<Response> post(dynamic data) async {
-    return await _dio.post(baseRoute, data: data);
+  Future<UserDto> post(UserCreateDto dto) async {
+    final response = await _dio.post(baseRoute, data: dto.toJson());
+    return UserDto.fromJson(response.data);
   }
 
-  Future<Response> patch(String id, dynamic data) async {
-    return await _dio.patch('$baseRoute/$id', data: data);
+  Future<UserDto> patch(String id, UserUpdateDto dto) async {
+    final response = await _dio.patch('$baseRoute/$id', data: dto.toJson());
+    return UserDto.fromJson(response.data);
   }
 
-  Future<Response> delete(String id) async {
-    return await _dio.delete('$baseRoute/$id');
+  Future<void> delete(String id) async {
+    await _dio.delete('$baseRoute/$id');
   }
 }
