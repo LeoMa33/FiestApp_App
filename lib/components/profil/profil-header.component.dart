@@ -3,10 +3,8 @@ import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fiestapp/components/profil/profil-top-header.component.dart';
 import 'package:fiestapp/constant.dart';
-import 'package:fiestapp/provider/user.provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:openapi/openapi.dart';
 
 class ProfilHeader extends ConsumerWidget {
   const ProfilHeader({super.key, this.allowEdit = true});
@@ -15,18 +13,13 @@ class ProfilHeader extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    User? currentUser = ref.watch(userProvider);
-
     return SizedBox(
       height: MediaQuery.sizeOf(context).height / 3.8,
       child: Stack(
         clipBehavior: Clip.none,
         children: [
           ClipRRect(
-            borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(40),
-              bottomRight: Radius.circular(40),
-            ),
+            borderRadius: BorderRadius.only(bottomLeft: Radius.circular(40), bottomRight: Radius.circular(40)),
             child: Container(
               decoration: BoxDecoration(
                 image: DecorationImage(
@@ -44,9 +37,7 @@ class ProfilHeader extends ConsumerWidget {
                   child: SafeArea(
                     minimum: EdgeInsets.only(top: 45, left: 10, right: 10),
                     bottom: false,
-                    child: Column(
-                      children: [ProfilTopHeader(allowEdit: allowEdit)],
-                    ),
+                    child: Column(children: [ProfilTopHeader(allowEdit: allowEdit)]),
                   ),
                 ),
               ),
@@ -61,9 +52,7 @@ class ProfilHeader extends ConsumerWidget {
               backgroundColor: Color(0xffF4F1F7),
               child: CircleAvatar(
                 radius: 61.5,
-                backgroundImage: CachedNetworkImageProvider(
-                  "${S3_enpoint}user/${currentUser?.guid}.webp",
-                ),
+                backgroundImage: CachedNetworkImageProvider("${S3_enpoint}user/${'fdsfdsf'}.webp"),
               ),
             ),
           ),

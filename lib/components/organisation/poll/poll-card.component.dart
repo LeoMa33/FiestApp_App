@@ -2,9 +2,10 @@ import 'package:fiestapp/components/avatar-group/avatar-group.component.dart';
 import 'package:fiestapp/components/organisation/poll/poll-choice.composent.dart';
 import 'package:fiestapp/core/common_widgets/button/button.component.dart';
 import 'package:fiestapp/enum.dart';
+import 'package:fiestapp/feature/poll/domain/models/poll.dart';
+import 'package:fiestapp/feature/user/domain/models/user.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:openapi/openapi.dart';
 
 class SondageCard extends StatefulWidget {
   const SondageCard({super.key, required this.poll});
@@ -15,10 +16,9 @@ class SondageCard extends StatefulWidget {
   State<SondageCard> createState() => _SondageCardState();
 }
 
-class _SondageCardState extends State<SondageCard>
-    with SingleTickerProviderStateMixin {
+class _SondageCardState extends State<SondageCard> with SingleTickerProviderStateMixin {
   bool _isExpanded = false;
-  String? _selected;
+  String? _selectedGuid;
   bool _hasValidated = false;
 
   void toggleExpand() {
@@ -28,19 +28,17 @@ class _SondageCardState extends State<SondageCard>
   }
 
   void onValidate() {
-    if (_selected != null) {
+    if (_selectedGuid != null) {
       setState(() {
         _hasValidated = true;
       });
     }
   }
 
-  PollChoiceStatus getStatus(String value) {
+  PollChoiceStatus getStatus(String guid) {
     if (_hasValidated) {
-      return _selected == value
-          ? PollChoiceStatus.validated
-          : PollChoiceStatus.none;
-    } else if (_selected == value) {
+      return _selectedGuid == guid ? PollChoiceStatus.validated : PollChoiceStatus.none;
+    } else if (_selectedGuid == guid) {
       return PollChoiceStatus.selected;
     } else {
       return PollChoiceStatus.none;
@@ -60,44 +58,55 @@ class _SondageCardState extends State<SondageCard>
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(30),
+            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 2))],
           ),
-          child: _isExpanded
-              ? _buildExpandedContent()
-              : _buildCollapsedContent(),
+          child: _isExpanded ? _buildExpandedContent() : _buildCollapsedContent(),
         ),
       ),
     );
   }
 
   Widget _buildCollapsedContent() {
-    final String usersLengthText =
-        "${widget.poll.votes} participant${widget.poll.votes.length == 1 ? '' : 's'}";
+    // Mock des participants pour l'affichage
+    final List<User> mockVoters = [
+      User(
+        userGuid: 'u1',
+        username: 'User 1',
+        gender: 'M',
+        age: 20,
+        height: 170,
+        weight: 60,
+        alcoholConsumption: 'casual',
+        ppLink: null,
+      ),
+      User(
+        userGuid: 'u2',
+        username: 'User 2',
+        gender: 'F',
+        age: 22,
+        height: 165,
+        weight: 55,
+        alcoholConsumption: 'casual',
+        ppLink: null,
+      ),
+    ];
+
+    final String usersLengthText = "${mockVoters.length} participant${mockVoters.length <= 1 ? '' : 's'}";
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Column(
-          spacing: 5,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              "Kilian marchera t-il sur une huitre ?",
-              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-            ),
-            AvatarGroup(
-              users: widget.poll.votes.map((v) => v.user).toList(),
-              haveBackground: false,
-              textColor: Colors.black,
-              text: usersLengthText,
-            ),
+            Text(widget.poll.question, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+            const SizedBox(height: 5),
+            AvatarGroup(users: mockVoters, haveBackground: false, textColor: Colors.black, text: usersLengthText),
           ],
         ),
         Column(
           children: const [
-            FaIcon(
-              FontAwesomeIcons.hourglass,
-              color: Color(0xffE15B42),
-              size: 17,
-            ),
+            FaIcon(FontAwesomeIcons.hourglass, color: Color(0xffE15B42), size: 17),
             Text("10h"),
           ],
         ),
@@ -108,35 +117,35 @@ class _SondageCardState extends State<SondageCard>
   Widget _buildExpandedContent() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      spacing: 15,
       children: [
-        const Text(
-          "Je suis autre sondage ?",
-          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-        ),
+        Text(widget.poll.question, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+        const SizedBox(height: 15),
         Column(
-          spacing: 10,
-          children: ["Oui", "Non"].map((option) {
-            return PollChoice(
-              label: option,
-              percentage: option == "Oui" ? 0.72 : 0.28,
-              status: getStatus(option),
-              onTap: () {
-                if (!_hasValidated) {
-                  setState(() {
-                    _selected = option;
-                  });
-                }
-              },
+          children: widget.poll.pollOptions.map((option) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: PollChoice(
+                label: option.option,
+                percentage: 0.5, // Mock pourcentage
+                status: getStatus(option.guid),
+                onTap: () {
+                  if (!_hasValidated) {
+                    setState(() {
+                      _selectedGuid = option.guid;
+                    });
+                  }
+                },
+              ),
             );
           }).toList(),
         ),
+        const SizedBox(height: 10),
         Align(
           alignment: Alignment.centerRight,
           child: CustomButton(
             icon: FontAwesomeIcons.arrowRight,
             label: "Valider",
-            onPressed: _selected == null ? null : onValidate,
+            onPressed: _selectedGuid == null ? null : onValidate,
           ),
         ),
       ],

@@ -2,13 +2,11 @@ import 'package:fiestapp/components/avatar-group/avatar-group.component.dart';
 import 'package:fiestapp/components/button/profil-image-button.component.dart';
 import 'package:fiestapp/core/common_widgets/button/button.component.dart';
 import 'package:fiestapp/enum.dart';
-import 'package:fiestapp/provider/user.provider.dart';
+import 'package:fiestapp/feature/event/domain/models/event.dart';
+import 'package:fiestapp/feature/user/domain/models/user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:openapi/openapi.dart';
-
-import '../../provider/event/selected-event.provider.dart';
 
 class WhoDriveCard extends ConsumerStatefulWidget {
   const WhoDriveCard({super.key, required this.type});
@@ -19,8 +17,7 @@ class WhoDriveCard extends ConsumerStatefulWidget {
   ConsumerState<WhoDriveCard> createState() => _WhoDriveCardState();
 }
 
-class _WhoDriveCardState extends ConsumerState<WhoDriveCard>
-    with SingleTickerProviderStateMixin {
+class _WhoDriveCardState extends ConsumerState<WhoDriveCard> with SingleTickerProviderStateMixin {
   bool _isExpanded = false;
 
   void toggleExpand() {
@@ -40,8 +37,31 @@ class _WhoDriveCardState extends ConsumerState<WhoDriveCard>
 
   @override
   Widget build(BuildContext context) {
-    final Event? event = ref.watch(selectedEventProvider);
-    final User? currentUser = ref.watch(userProvider);
+    // Mock du user
+    final currentUser = User(
+      userGuid: 'user-1',
+      username: 'Léo',
+      gender: 'male',
+      age: 25,
+      height: 180,
+      weight: 75,
+      alcoholConsumption: 'casual',
+      ppLink: null,
+    );
+
+    // Mock de l'event
+    final event = Event(
+      guid: '1',
+      title: 'Soirée Mock',
+      description: 'Une super soirée de test',
+      location: 'Paris, France',
+      latitute: 48.8566,
+      longitude: 2.3522,
+      date: DateTime.now().millisecondsSinceEpoch,
+      organizer: currentUser,
+      participants: [currentUser],
+      expenses: [],
+    );
 
     return GestureDetector(
       onTap: toggleExpand,
@@ -55,18 +75,10 @@ class _WhoDriveCardState extends ConsumerState<WhoDriveCard>
             color: Colors.white,
             borderRadius: BorderRadius.circular(30),
             boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 10,
-                offset: const Offset(0, 2),
-              ),
+              BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 2)),
             ],
           ),
-          child: currentUser != null && event != null
-              ? _isExpanded
-                    ? _buildExpandedContent(currentUser, event)
-                    : _buildCollapsedContent(currentUser, event)
-              : Container(),
+          child: _isExpanded ? _buildExpandedContent(currentUser, event) : _buildCollapsedContent(currentUser, event),
         ),
       ),
     );
@@ -86,26 +98,13 @@ class _WhoDriveCardState extends ConsumerState<WhoDriveCard>
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  currentUser.username,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+                Text(currentUser.username, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    const Icon(
-                      Icons.location_on,
-                      size: 14,
-                      color: Color(0xffE15B42),
-                    ),
+                    const Icon(Icons.location_on, size: 14, color: Color(0xffE15B42)),
                     const SizedBox(width: 4),
-                    Text(
-                      event.location,
-                      style: const TextStyle(fontSize: 12, color: Colors.grey),
-                    ),
+                    Text(event.location, style: const TextStyle(fontSize: 12, color: Colors.grey)),
                   ],
                 ),
               ],
@@ -120,11 +119,7 @@ class _WhoDriveCardState extends ConsumerState<WhoDriveCard>
           ),
           child: Text(
             "$_emoji 1/5",
-            style: const TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: Color(0xffE15B42),
-            ),
+            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xffE15B42)),
           ),
         ),
       ],
@@ -133,7 +128,7 @@ class _WhoDriveCardState extends ConsumerState<WhoDriveCard>
 
   Widget _buildExpandedContent(User currentUser, Event event) {
     final String usersLengthText =
-        "${event.participants.length} participant${event.participants.length == 1 ? '' : 's'}";
+        "${event.participants.length} participant${event.participants.length <= 1 ? '' : 's'}";
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -144,7 +139,7 @@ class _WhoDriveCardState extends ConsumerState<WhoDriveCard>
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             AvatarGroup(
-              users: event.participants.toList(),
+              users: event.participants,
               haveBackground: false,
               textColor: Colors.black,
               text: usersLengthText,

@@ -1,6 +1,8 @@
 import 'package:fiestapp/components/details/details-header.component.dart';
 import 'package:fiestapp/components/details/event-data-with-map.component.dart';
 import 'package:fiestapp/components/page-switcher/page-switcher.component.dart';
+import 'package:fiestapp/feature/event/domain/models/event.dart';
+import 'package:fiestapp/feature/user/domain/models/user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -16,6 +18,29 @@ class Details extends ConsumerStatefulWidget {
 class DetailState extends ConsumerState<Details> {
   bool isMapExpanded = false;
   int currentPage = 0;
+
+  // Mock de l'événement
+  final Event mockEvent = Event(
+    guid: '1',
+    title: 'Soirée Mock',
+    description: 'Une description détaillée de cette super soirée de test.',
+    location: 'Paris, France',
+    latitute: 48.8566,
+    longitude: 2.3522,
+    date: DateTime.now().millisecondsSinceEpoch,
+    organizer: User(
+      userGuid: 'user-1',
+      username: 'Léo',
+      gender: 'male',
+      age: 25,
+      height: 180,
+      weight: 75,
+      alcoholConsumption: 'casual',
+      ppLink: null,
+    ),
+    participants: [],
+    expenses: [],
+  );
 
   void expandMap() {
     setState(() {
@@ -43,7 +68,7 @@ class DetailState extends ConsumerState<Details> {
           padding: const EdgeInsets.only(bottom: 15, left: 15, right: 15),
           child: PageSwitcher(
             onPageChanged: changePage,
-            currentPage: 0,
+            currentPage: currentPage,
             firstPage: 'Informations',
             secondPage: 'Organisation',
           ),
@@ -52,24 +77,16 @@ class DetailState extends ConsumerState<Details> {
         body: Column(
           spacing: 10,
           children: [
-            if (!isMapExpanded)
-              DetailsHeader(
-                height:
-                    MediaQuery.sizeOf(context).height /
-                    (currentPage == 0 ? 3 : 3.8),
-              ),
+            if (!isMapExpanded) DetailsHeader(height: MediaQuery.sizeOf(context).height / (currentPage == 0 ? 3 : 3.8)),
             Expanded(
               flex: 2,
               child: Padding(
                 padding: const EdgeInsets.all(10),
                 child: AnimatedSwitcher(
-                  duration: Duration(milliseconds: 200),
+                  duration: const Duration(milliseconds: 200),
                   child: currentPage == 1
-                      ? Organisation()
-                      : EventDetailsWithMap(
-                          isMapExpanded: isMapExpanded,
-                          onExpandToggle: expandMap,
-                        ),
+                      ? const Organisation()
+                      : EventDetailsWithMap(isMapExpanded: isMapExpanded, onExpandToggle: expandMap, event: mockEvent),
                 ),
               ),
             ),

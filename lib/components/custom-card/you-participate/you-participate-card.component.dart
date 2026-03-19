@@ -1,11 +1,8 @@
 import 'package:fiestapp/components/custom-card/card-header.component.dart';
 import 'package:fiestapp/components/custom-card/you-participate/you-participate-bottom-card.component.dart';
-import 'package:fiestapp/core/routing/route_enum.dart';
-import 'package:fiestapp/core/routing/router.dart';
-import 'package:fiestapp/provider/event/selected-event.provider.dart';
+import 'package:fiestapp/feature/event/domain/models/event.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:openapi/openapi.dart';
 
 class YouParticipateCard extends ConsumerWidget {
   const YouParticipateCard({super.key, required this.event});
@@ -15,10 +12,7 @@ class YouParticipateCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return GestureDetector(
-      onTap: () {
-        ref.read(routerProvider).pushNamed(AppRoute.details.name);
-        ref.read(selectedEventProvider.notifier).fetchSelectedEvent(event.guid);
-      },
+      onTap: () {},
       child: Container(
         height: 250,
         width: 350,
@@ -45,7 +39,7 @@ class YouParticipateCard extends ConsumerWidget {
             ),
             YouParticipateBottomCardComponent(
               eventCreatorName: event.organizer.username,
-              eventCreatorImage: event.organizer.guid,
+              eventCreatorImage: '',
               users: event.participants.toList(),
               eventName: event.title,
               eventLocation: event.location,

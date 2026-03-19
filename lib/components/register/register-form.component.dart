@@ -3,10 +3,9 @@ import 'package:fiestapp/components/input/select-text-input.component.dart';
 import 'package:fiestapp/components/input/slider.component.dart';
 import 'package:fiestapp/components/register/gender.component.dart';
 import 'package:fiestapp/enum.dart';
-import 'package:fiestapp/provider/form/register-form.provider.dart';
+import 'package:fiestapp/feature/estimation/domain/enum/estimation_enum.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:openapi/openapi.dart';
 
 class RegisterForm extends ConsumerStatefulWidget {
   const RegisterForm({super.key});
@@ -35,67 +34,6 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
     _ageController = TextEditingController();
     _fileController = TextEditingController();
     _alcoholConsumptionController = TextEditingController();
-    // Lier chaque controller au provider
-    _heightController.addListener(() {
-      final value = int.tryParse(_heightController.text);
-      if (value != null) {
-        ref.read(registerFormProvider.notifier).updateHeight(value);
-      }
-    });
-
-    _weightController.addListener(() {
-      final value = int.tryParse(_weightController.text);
-      if (value != null) {
-        ref.read(registerFormProvider.notifier).updateWeight(value);
-      }
-    });
-
-    _genderController.addListener(() {
-      switch (_genderController.text) {
-        case 'Female':
-          ref
-              .read(registerFormProvider.notifier)
-              .updateGender(UserGenderEnum.female);
-        case 'Male':
-          ref
-              .read(registerFormProvider.notifier)
-              .updateGender(UserGenderEnum.male);
-      }
-    });
-
-    _nameController.addListener(() {
-      ref
-          .read(registerFormProvider.notifier)
-          .updateUsername(_nameController.text);
-    });
-
-    _ageController.addListener(() {
-      final value = int.tryParse(_ageController.text);
-      if (value != null) {
-        ref.read(registerFormProvider.notifier).updateAge(value);
-      }
-    });
-
-    _alcoholConsumptionController.addListener(() {
-      switch (_alcoholConsumptionController.text) {
-        case 'occasional':
-          ref
-              .read(registerFormProvider.notifier)
-              .updateAlcohol(UserAlcoholConsumptionEnum.occasional);
-        case 'regular':
-          ref
-              .read(registerFormProvider.notifier)
-              .updateAlcohol(UserAlcoholConsumptionEnum.regular);
-        case 'veteran':
-          ref
-              .read(registerFormProvider.notifier)
-              .updateAlcohol(UserAlcoholConsumptionEnum.veteran);
-        case 'unknown_default_open_api':
-          ref
-              .read(registerFormProvider.notifier)
-              .updateAlcohol(UserAlcoholConsumptionEnum.unknownDefaultOpenApi);
-      }
-    });
   }
 
   @override
@@ -166,24 +104,23 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
             onChanged: (value) => print("Poids: $value kg"),
           ),
           const SizedBox(height: 20),
-          MinimalEnumSelector<UserAlcoholConsumptionEnum>(
+          MinimalEnumSelector<AlcoholConsumption>(
             width: MediaQuery.sizeOf(context).width * 0.6,
             title: "Quel buveur êtes-vous ?",
-            value: UserAlcoholConsumptionEnum.occasional,
-            values: UserAlcoholConsumptionEnum.values.toList(),
+            value: AlcoholConsumption.casual,
+            values: AlcoholConsumption.values.toList(),
             controller: _alcoholConsumptionController,
             labelBuilder: (val) {
               switch (val) {
-                case UserAlcoholConsumptionEnum.occasional:
+                case AlcoholConsumption.casual:
                   return "Occasionnel";
-                case UserAlcoholConsumptionEnum.regular:
+                case AlcoholConsumption.regular:
                   return "Régulier";
-                case UserAlcoholConsumptionEnum.veteran:
+                case AlcoholConsumption.seasoned:
                   return "Aguerri";
-                case UserAlcoholConsumptionEnum.unknownDefaultOpenApi:
-                  return 'Aucune valeur';
+                case AlcoholConsumption.never:
+                  return 'Jamais';
               }
-              return '';
             },
             onChanged: (newValue) {
               print("Alcool sélectionné : $newValue");

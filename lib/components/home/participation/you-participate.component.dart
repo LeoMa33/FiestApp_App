@@ -1,6 +1,5 @@
 import 'package:fiestapp/components/custom-card/you-participate/you-participate-card.component.dart';
 import 'package:fiestapp/components/text/custom-title.component.dart';
-import 'package:fiestapp/provider/event/event.provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -14,7 +13,7 @@ class YouParticipate extends ConsumerStatefulWidget {
 class _YouParticipateState extends ConsumerState<YouParticipate> {
   @override
   Widget build(BuildContext context) {
-    final events = ref.watch(eventProvider);
+    final events = [];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.start,

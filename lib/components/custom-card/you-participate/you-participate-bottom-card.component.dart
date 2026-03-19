@@ -1,6 +1,6 @@
 import 'package:fiestapp/components/avatar-group/avatar-group.component.dart';
 import 'package:fiestapp/components/custom-card/creator-event-name/creator-event-name.component.dart';
-import 'package:openapi/openapi.dart';
+import 'package:fiestapp/feature/user/domain/models/user.dart';
 import 'package:flutter/material.dart';
 
 class YouParticipateBottomCardComponent extends StatelessWidget {
@@ -31,26 +31,12 @@ class YouParticipateBottomCardComponent extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              CreatorEventName(
-                eventCreatorName: eventCreatorName,
-                eventCreatorImage: eventCreatorImage,
-              ),
-              AvatarGroup(
-                users: users,
-                haveBackground: false,
-                textColor: Colors.black,
-                text: users.length.toString(),
-              ),
+              CreatorEventName(eventCreatorName: eventCreatorName, eventCreatorImage: eventCreatorImage),
+              AvatarGroup(users: users, haveBackground: false, textColor: Colors.black, text: users.length.toString()),
             ],
           ),
-          Text(
-            eventName,
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-          ),
-          Text(
-            '📍 $eventLocation',
-            style: TextStyle(fontSize: 12, color: Colors.black),
-          ),
+          Text(eventName, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+          Text('📍 $eventLocation', style: TextStyle(fontSize: 12, color: Colors.black)),
         ],
       ),
     );

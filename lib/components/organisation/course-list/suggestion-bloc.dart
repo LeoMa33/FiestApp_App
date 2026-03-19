@@ -1,11 +1,9 @@
 import 'package:fiestapp/components/text/custom-subtitlecomponent.dart';
 import 'package:fiestapp/components/text/data-tag.component.dart';
 import 'package:fiestapp/constant.dart';
-import 'package:fiestapp/provider/event/selected-event.provider.dart';
-import 'package:fiestapp/provider/suggestion.provider.dart';
+import 'package:fiestapp/feature/estimation/domain/models/estimation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:openapi/openapi.dart';
 
 class SuggestionBloc extends ConsumerStatefulWidget {
   const SuggestionBloc({super.key});
@@ -18,18 +16,12 @@ class _SuggestionBlocState extends ConsumerState<SuggestionBloc> {
   @override
   void initState() {
     super.initState();
-
-    final Event? event = ref.read(selectedEventProvider);
-
-    if (event == null) {
-      return;
-    }
-    ref.read(suggestionProvider.notifier).fetchAllSuggestions(event);
   }
 
   @override
   Widget build(BuildContext context) {
-    final suggestion = ref.watch(suggestionProvider);
+    // Mock des suggestions
+    final suggestion = Suggestion(beer: 24, soft: 10, pizza: 5);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -40,18 +32,9 @@ class _SuggestionBlocState extends ConsumerState<SuggestionBloc> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              DataTag(
-                s3ImageUrl: "${S3_enpoint}asset/biere.webp",
-                text: "${suggestion.beer} Bières",
-              ),
-              DataTag(
-                s3ImageUrl: "${S3_enpoint}asset/soda.webp",
-                text: "${suggestion.soft} Softs",
-              ),
-              DataTag(
-                s3ImageUrl: "${S3_enpoint}asset/pizza.webp",
-                text: "${suggestion.pizza} Pizzas",
-              ),
+              DataTag(s3ImageUrl: "${S3_enpoint}asset/biere.webp", text: "${suggestion.beer} Bières"),
+              DataTag(s3ImageUrl: "${S3_enpoint}asset/soda.webp", text: "${suggestion.soft} Softs"),
+              DataTag(s3ImageUrl: "${S3_enpoint}asset/pizza.webp", text: "${suggestion.pizza} Pizzas"),
             ],
           ),
         ),

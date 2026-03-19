@@ -1,6 +1,6 @@
 # <img src="./assets/images/appicon.png" width="40" style="vertical-align: middle; border-radius: 10px"/> FiestApp
 
-Project by [__ARCAS__ Manon](https://github.com/Manon-Arc), [__MACE__ Léo](https://github.com/LeoMa33), [__DE AMEZAGA__ Bastien](https://github.com/Bastien-DA) and [__BARBOTEAU__ Mathieu](https://github.com/Kilecon).
+Project by [__ARCAS__ Manon](https://github.com/Manon-Arc), [__MACE__ Léo](https://github.com/LeoMa33).
 
 Welcome to the FiestApp project ! <br>
 
