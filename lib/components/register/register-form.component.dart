@@ -3,10 +3,10 @@ import 'package:fiestapp/components/input/select-text-input.component.dart';
 import 'package:fiestapp/components/input/slider.component.dart';
 import 'package:fiestapp/components/register/gender.component.dart';
 import 'package:fiestapp/enum.dart';
-import 'package:fiestapp/provider/form/register-form.provider.dart';
+import 'package:fiestapp/feature/estimation/domain/enum/estimation_enum.dart';
+import 'package:fiestapp/feature/user/data/provider/user_create_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:openapi/openapi.dart';
 
 class RegisterForm extends ConsumerStatefulWidget {
   const RegisterForm({super.key});
@@ -20,82 +20,23 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
   late TextEditingController _weightController;
   late TextEditingController _nameController;
   late TextEditingController _ageController;
-  late TextEditingController _genderController;
-  late TextEditingController _fileController;
   late TextEditingController _alcoholConsumptionController;
 
   @override
   void initState() {
     super.initState();
 
-    _heightController = TextEditingController();
-    _weightController = TextEditingController();
-    _genderController = TextEditingController();
-    _nameController = TextEditingController();
-    _ageController = TextEditingController();
-    _fileController = TextEditingController();
+    final initialState = ref.read(userCreateProvider);
+
+    _heightController = TextEditingController(
+      text: (initialState.height * 100).toInt().toString(),
+    );
+    _weightController = TextEditingController(
+      text: initialState.weight.toInt().toString(),
+    );
+    _nameController = TextEditingController(text: initialState.name);
+    _ageController = TextEditingController(text: initialState.age.toString());
     _alcoholConsumptionController = TextEditingController();
-    // Lier chaque controller au provider
-    _heightController.addListener(() {
-      final value = int.tryParse(_heightController.text);
-      if (value != null) {
-        ref.read(registerFormProvider.notifier).updateHeight(value);
-      }
-    });
-
-    _weightController.addListener(() {
-      final value = int.tryParse(_weightController.text);
-      if (value != null) {
-        ref.read(registerFormProvider.notifier).updateWeight(value);
-      }
-    });
-
-    _genderController.addListener(() {
-      switch (_genderController.text) {
-        case 'Female':
-          ref
-              .read(registerFormProvider.notifier)
-              .updateGender(UserGenderEnum.female);
-        case 'Male':
-          ref
-              .read(registerFormProvider.notifier)
-              .updateGender(UserGenderEnum.male);
-      }
-    });
-
-    _nameController.addListener(() {
-      ref
-          .read(registerFormProvider.notifier)
-          .updateUsername(_nameController.text);
-    });
-
-    _ageController.addListener(() {
-      final value = int.tryParse(_ageController.text);
-      if (value != null) {
-        ref.read(registerFormProvider.notifier).updateAge(value);
-      }
-    });
-
-    _alcoholConsumptionController.addListener(() {
-      switch (_alcoholConsumptionController.text) {
-        case 'occasional':
-          ref
-              .read(registerFormProvider.notifier)
-              .updateAlcohol(UserAlcoholConsumptionEnum.occasional);
-        case 'regular':
-          ref
-              .read(registerFormProvider.notifier)
-              .updateAlcohol(UserAlcoholConsumptionEnum.regular);
-        case 'veteran':
-          ref
-              .read(registerFormProvider.notifier)
-              .updateAlcohol(UserAlcoholConsumptionEnum.veteran);
-        case 'unknown_default_open_api':
-          ref
-              .read(registerFormProvider.notifier)
-              .updateAlcohol(UserAlcoholConsumptionEnum.unknownDefaultOpenApi);
-      }
-    });
   }
 
   @override
@@ -103,9 +44,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
     _heightController.dispose();
     _weightController.dispose();
     _nameController.dispose();
-    _genderController.dispose();
     _ageController.dispose();
-    _fileController.dispose();
     _alcoholConsumptionController.dispose();
     super.dispose();
   }
@@ -126,7 +65,8 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
                   placeholder: "Votre nom",
                   inputType: InputType.text,
                   controller: _nameController,
-                  onChanged: (value) => print("Nom: $value"),
+                  onChanged: (value) =>
+                      ref.read(userCreateProvider.notifier).updateName(value),
                 ),
               ),
               const SizedBox(width: 20),
@@ -138,55 +78,67 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
                   placeholder: "25",
                   inputType: InputType.number,
                   controller: _ageController,
-                  onChanged: (value) => print("Âge: $value"),
+                  onChanged: (value) {
+                    final age = int.tryParse(value);
+                    if (age != null) {
+                      ref.read(userCreateProvider.notifier).updateAge(age);
+                    }
+                  },
                 ),
               ),
             ],
           ),
           const SizedBox(height: 20),
-          GenderSelector(controller: _genderController),
+          const GenderSelector(),
           const SizedBox(height: 20),
           CustomSlider(
             title: "Quelle est votre taille ?",
             min: 120,
             max: 240,
-            value: 170,
+            value: (ref.read(userCreateProvider).height * 100).toInt(),
             unit: "cm",
             controller: _heightController,
-            onChanged: (value) => print("Taille: $value cm"),
+            onChanged: (value) => ref
+                .read(userCreateProvider.notifier)
+                .updateHeight(value.toDouble() / 100),
           ),
           const SizedBox(height: 20),
           CustomSlider(
             title: "Quel est votre poids ?",
             min: 30,
             max: 120,
-            value: 70,
+            value: (ref.read(userCreateProvider).weight).toInt(),
             unit: "kg",
             controller: _weightController,
-            onChanged: (value) => print("Poids: $value kg"),
+            onChanged: (value) => ref
+                .read(userCreateProvider.notifier)
+                .updateWeight(value.toDouble()),
           ),
           const SizedBox(height: 20),
-          MinimalEnumSelector<UserAlcoholConsumptionEnum>(
+          MinimalEnumSelector<AlcoholConsumption>(
             width: MediaQuery.sizeOf(context).width * 0.6,
             title: "Quel buveur êtes-vous ?",
-            value: UserAlcoholConsumptionEnum.occasional,
-            values: UserAlcoholConsumptionEnum.values.toList(),
+            value: ref.watch(userCreateProvider).alcoholConsumption,
+            values: AlcoholConsumption.values.toList(),
             controller: _alcoholConsumptionController,
             labelBuilder: (val) {
               switch (val) {
-                case UserAlcoholConsumptionEnum.occasional:
+                case AlcoholConsumption.casual:
                   return "Occasionnel";
-                case UserAlcoholConsumptionEnum.regular:
+                case AlcoholConsumption.regular:
                   return "Régulier";
-                case UserAlcoholConsumptionEnum.veteran:
+                case AlcoholConsumption.seasoned:
                   return "Aguerri";
-                case UserAlcoholConsumptionEnum.unknownDefaultOpenApi:
-                  return 'Aucune valeur';
+                case AlcoholConsumption.never:
+                  return 'Jamais';
               }
-              return '';
             },
             onChanged: (newValue) {
-              print("Alcool sélectionné : $newValue");
+              if (newValue != null) {
+                ref
+                    .read(userCreateProvider.notifier)
+                    .updateAlcoholConsumption(newValue);
+              }
             },
           ),
         ],

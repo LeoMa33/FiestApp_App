@@ -1,4 +1,5 @@
 import 'package:fiestapp/feature/estimation/domain/enum/estimation_enum.dart';
+import 'package:fiestapp/feature/estimation/domain/enum/gender_enum.dart';
 
 class UserDto {
   final String id;
@@ -9,6 +10,7 @@ class UserDto {
   final String? imageUrl;
   final double height;
   final AlcoholConsumption alcoholConsumption;
+  final Gender gender;
 
   UserDto({
     required this.id,
@@ -19,6 +21,7 @@ class UserDto {
     this.imageUrl,
     required this.height,
     required this.alcoholConsumption,
+    required this.gender,
   });
 
   factory UserDto.fromJson(Map<String, dynamic> json) {
@@ -27,12 +30,13 @@ class UserDto {
       name: json['name'] as String,
       mail: json['mail'] as String,
       age: (json['age'] as num).toInt(),
-      weight: (json['weight'] as num).toDouble(),
+      weight: int.parse(json['weight'] as String).toDouble(),
       imageUrl: json['imageUrl'] as String?,
-      height: (json['height'] as num).toDouble(),
+      height: int.parse(json['height'] as String).toDouble(),
       alcoholConsumption: AlcoholConsumption.values.byName(
         json['alcohol_consumption'] as String,
       ),
+      gender: Gender.fromString(json['gender'] as String),
     );
   }
 
@@ -46,6 +50,7 @@ class UserDto {
       'imageUrl': imageUrl,
       'height': height,
       'alcohol_consumption': alcoholConsumption.name,
+      'gender': gender.value,
     };
   }
 }

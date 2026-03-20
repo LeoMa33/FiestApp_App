@@ -1,19 +1,16 @@
 import 'dart:io';
 
-import 'package:fiestapp/api/event-service.dart';
 import 'package:fiestapp/components/add-event/add-event-datetime.component.dart';
 import 'package:fiestapp/components/add-event/add-event-header.component.dart';
 import 'package:fiestapp/components/add-event/address-block.component.dart';
 import 'package:fiestapp/components/add-event/informations-block.component.dart';
 import 'package:fiestapp/components/image-selector/image-selector.component.dart';
 import 'package:fiestapp/core/common_widgets/button/button.component.dart';
-import 'package:fiestapp/core/routing/router.dart';
-import 'package:fiestapp/provider/event/event.provider.dart';
-import 'package:fiestapp/provider/form/event-form.provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -59,10 +56,7 @@ class AddEvent extends ConsumerWidget {
                   CustomButton(
                     label: "Créer l'évènement",
                     icon: FontAwesomeIcons.arrowRight,
-                    onPressed: () => {
-                      _submitForm(ref, context),
-                      ref.read(routerProvider).pop(),
-                    },
+                    onPressed: () => {_submitForm(ref, context), context.pop},
                   ),
                 ],
               ),
@@ -76,16 +70,6 @@ class AddEvent extends ConsumerWidget {
   Future<void> _submitForm(WidgetRef ref, context) async {
     final prefs = await SharedPreferences.getInstance();
     final String monId = prefs.getString('currentId') ?? '';
-
-    final eventService = EventService();
-
-    final eventForm = ref.watch(eventFormProvider);
-
-    final response = await eventService.createEvent(eventForm, monId, null);
-
-    if (response.data != null) {
-      ref.read(eventProvider).add(response.data!);
-    }
   }
 
   Future<XFile?> convertToWebP(File originalFile) async {

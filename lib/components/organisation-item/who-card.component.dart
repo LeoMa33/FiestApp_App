@@ -2,13 +2,12 @@ import 'package:fiestapp/components/avatar-group/avatar-group.component.dart';
 import 'package:fiestapp/components/button/profil-image-button.component.dart';
 import 'package:fiestapp/core/common_widgets/button/button.component.dart';
 import 'package:fiestapp/enum.dart';
-import 'package:fiestapp/provider/user.provider.dart';
+import 'package:fiestapp/feature/estimation/domain/enum/gender_enum.dart';
+import 'package:fiestapp/feature/event/domain/models/event.dart';
+import 'package:fiestapp/feature/user/domain/models/user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:openapi/openapi.dart';
-
-import '../../provider/event/selected-event.provider.dart';
 
 class WhoDriveCard extends ConsumerStatefulWidget {
   const WhoDriveCard({super.key, required this.type});
@@ -40,8 +39,31 @@ class _WhoDriveCardState extends ConsumerState<WhoDriveCard>
 
   @override
   Widget build(BuildContext context) {
-    final Event? event = ref.watch(selectedEventProvider);
-    final User? currentUser = ref.watch(userProvider);
+    // Mock du user
+    final currentUser = User(
+      userGuid: 'user-1',
+      username: 'Léo',
+      gender: Gender.man,
+      age: 25,
+      height: 180,
+      weight: 75,
+      alcoholConsumption: 'casual',
+      ppLink: null,
+    );
+
+    // Mock de l'event
+    final event = Event(
+      guid: '1',
+      title: 'Soirée Mock',
+      description: 'Une super soirée de test',
+      location: 'Paris, France',
+      latitute: 48.8566,
+      longitude: 2.3522,
+      date: DateTime.now().millisecondsSinceEpoch,
+      organizer: currentUser,
+      participants: [currentUser],
+      expenses: [],
+    );
 
     return GestureDetector(
       onTap: toggleExpand,
@@ -62,11 +84,9 @@ class _WhoDriveCardState extends ConsumerState<WhoDriveCard>
               ),
             ],
           ),
-          child: currentUser != null && event != null
-              ? _isExpanded
-                    ? _buildExpandedContent(currentUser, event)
-                    : _buildCollapsedContent(currentUser, event)
-              : Container(),
+          child: _isExpanded
+              ? _buildExpandedContent(currentUser, event)
+              : _buildCollapsedContent(currentUser, event),
         ),
       ),
     );
@@ -133,7 +153,7 @@ class _WhoDriveCardState extends ConsumerState<WhoDriveCard>
 
   Widget _buildExpandedContent(User currentUser, Event event) {
     final String usersLengthText =
-        "${event.participants.length} participant${event.participants.length == 1 ? '' : 's'}";
+        "${event.participants.length} participant${event.participants.length <= 1 ? '' : 's'}";
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -144,7 +164,7 @@ class _WhoDriveCardState extends ConsumerState<WhoDriveCard>
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             AvatarGroup(
-              users: event.participants.toList(),
+              users: event.participants,
               haveBackground: false,
               textColor: Colors.black,
               text: usersLengthText,

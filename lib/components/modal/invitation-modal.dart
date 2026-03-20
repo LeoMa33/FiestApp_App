@@ -1,5 +1,7 @@
 import 'package:fiestapp/core/common_widgets/button/button.component.dart';
-import 'package:fiestapp/provider/event/selected-event.provider.dart';
+import 'package:fiestapp/feature/estimation/domain/enum/gender_enum.dart';
+import 'package:fiestapp/feature/event/domain/models/event.dart';
+import 'package:fiestapp/feature/user/domain/models/user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -23,19 +25,33 @@ class _InvitationModalState extends ConsumerState<InvitationModal> {
   void initState() {
     super.initState();
 
-    final selectedEvent = ref.read(selectedEventProvider);
+    // Mock de l'event
+    final selectedEvent = Event(
+      guid: 'event-1',
+      title: 'Soirée Mock',
+      description: 'Description',
+      location: 'Paris',
+      latitute: 48.8566,
+      longitude: 2.3522,
+      date: DateTime.now().millisecondsSinceEpoch,
+      organizer: User(
+        userGuid: 'user-1',
+        username: 'Léo',
+        gender: Gender.man,
+        age: 25,
+        height: 180,
+        weight: 75,
+        alcoholConsumption: 'casual',
+        ppLink: null,
+      ),
+      participants: [],
+      expenses: [],
+    );
 
-    if (selectedEvent == null) {
-      fullInvitationLink = 'fiestapp://invitation/undefined';
-      qrImage = QrImage(
-        QrCode(1, QrErrorCorrectLevel.L)..addData(fullInvitationLink),
-      );
-    } else {
-      fullInvitationLink = 'fiestapp://invitation/${selectedEvent.guid}';
-      final qrCode = QrCode(5, QrErrorCorrectLevel.H)
-        ..addData(fullInvitationLink);
-      qrImage = QrImage(qrCode);
-    }
+    fullInvitationLink = 'fiestapp://invitation/${selectedEvent.guid}';
+    final qrCode = QrCode(5, QrErrorCorrectLevel.H)
+      ..addData(fullInvitationLink);
+    qrImage = QrImage(qrCode);
   }
 
   @override

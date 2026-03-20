@@ -3,13 +3,10 @@ import 'package:fiestapp/components/avatar-group/avatar-group.component.dart';
 import 'package:fiestapp/components/button/icon-button.component.dart';
 import 'package:fiestapp/components/modal/invitation-modal.dart';
 import 'package:fiestapp/constant.dart';
-import 'package:fiestapp/core/routing/route_enum.dart';
-import 'package:fiestapp/core/routing/router.dart';
-import 'package:fiestapp/provider/event/selected-event.provider.dart';
+import 'package:fiestapp/feature/event/domain/models/event.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:openapi/openapi.dart';
 
 class DetailsHeader extends ConsumerStatefulWidget {
   const DetailsHeader({super.key, required this.height});
@@ -23,10 +20,7 @@ class DetailsHeader extends ConsumerStatefulWidget {
 class _DetailsHeaderState extends ConsumerState<DetailsHeader> {
   late final Event? event;
 
-  void goBack() {
-    ref.read(selectedEventProvider.notifier).clear();
-    ref.read(routerProvider).push(AppRoute.home.path);
-  }
+  void goBack() {}
 
   Future<void> _dialogBuilder(BuildContext context) {
     return showDialog<void>(
@@ -40,9 +34,6 @@ class _DetailsHeaderState extends ConsumerState<DetailsHeader> {
   @override
   void initState() {
     super.initState();
-    setState(() {
-      event = ref.watch(selectedEventProvider);
-    });
   }
 
   @override
@@ -53,10 +44,7 @@ class _DetailsHeaderState extends ConsumerState<DetailsHeader> {
         "${event!.participants.length} participant${event!.participants.length == 1 ? '' : 's'}";
 
     return ClipRRect(
-      borderRadius: const BorderRadius.only(
-        bottomLeft: Radius.circular(40),
-        bottomRight: Radius.circular(40),
-      ),
+      borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(40), bottomRight: Radius.circular(40)),
       child: CachedNetworkImage(
         imageUrl:
             'https://tripxl.com/blog/wp-content/uploads/2024/09/Subsix-Underwater-Nightclub-Niyama-Private-Islands.jpg',
@@ -73,10 +61,7 @@ class _DetailsHeaderState extends ConsumerState<DetailsHeader> {
           width: double.infinity,
           height: widget.height,
           decoration: BoxDecoration(
-            image: DecorationImage(
-              image: CachedNetworkImageProvider(defaultEventImage),
-              fit: BoxFit.cover,
-            ),
+            image: DecorationImage(image: CachedNetworkImageProvider(defaultEventImage), fit: BoxFit.cover),
           ),
           child: headerContent(context, usersLengthText),
         ),

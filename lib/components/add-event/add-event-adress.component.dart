@@ -1,6 +1,5 @@
 import 'package:fiestapp/components/input/data-tag-input.component.dart';
 import 'package:fiestapp/enum.dart';
-import 'package:fiestapp/provider/form/event-form.provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -25,34 +24,15 @@ class _AddEventAdressState extends ConsumerState<AddEventAdress> {
     _cityController = TextEditingController();
     _postalCodeController = TextEditingController();
 
-    _streetController.addListener(() {
-      ref
-          .read(eventFormProvider.notifier)
-          .updateLocation(
-            "${_streetController.text}, ${_postalCodeController.text} ${_cityController.text}",
-          );
-    });
+    _streetController.addListener(() {});
 
-    _cityController.addListener(() {
-      ref
-          .read(eventFormProvider.notifier)
-          .updateLocation(
-            "${_streetController.text}, ${_postalCodeController.text} ${_cityController.text}",
-          );
-    });
+    _cityController.addListener(() {});
 
-    _postalCodeController.addListener(() {
-      ref
-          .read(eventFormProvider.notifier)
-          .updateLocation(
-            "${_streetController.text}, ${_postalCodeController.text} ${_cityController.text}",
-          );
-    });
+    _postalCodeController.addListener(() {});
   }
 
   @override
   void dispose() {
-    // Libération de la mémoire
     _streetController.dispose();
     _cityController.dispose();
     _postalCodeController.dispose();

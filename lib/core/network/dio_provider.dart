@@ -11,11 +11,11 @@ final tokenProvider = StateProvider<String?>((ref) => null);
 Dio dio(DioRef ref) {
   final dio = Dio(BaseOptions(baseUrl: API_BASE));
 
-  final token = ref.watch(tokenProvider);
-
   dio.interceptors.add(
     InterceptorsWrapper(
       onRequest: (options, handler) {
+        final token = ref.read(tokenProvider);
+
         if (token != null) {
           options.headers['Authorization'] = 'Bearer $token';
         }

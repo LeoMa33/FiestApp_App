@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:fiestapp/feature/user/data/dto/user_create_dto.dart';
 import 'package:fiestapp/feature/user/data/dto/user_dto.dart';
 import 'package:fiestapp/feature/user/data/dto/user_update_dto.dart';
+import 'package:http/http.dart' hide MultipartFile;
 
 class UserModule {
   final Dio _dio;
@@ -15,7 +16,24 @@ class UserModule {
   }
 
   Future<UserDto> post(UserCreateDto dto) async {
-    final response = await _dio.post(baseRoute, data: dto.toJson());
+    final formData = FormData.fromMap({
+      ...dto.toJson(),
+      'file': await MultipartFile.fromFile(
+        dto.profilePicture!.path,
+        filename: dto.profilePicture!.path.split('/').last,
+        contentType: MediaType('image', 'webp'),
+      ),
+    });
+
+    final response = await _dio.post(
+      baseRoute,
+      data: formData,
+      onSendProgress: (sent, total) {
+        print('${(sent / total * 100).toStringAsFixed(0)}% envoyé');
+      },
+    );
+
+    print(response.data);
     return UserDto.fromJson(response.data);
   }
 

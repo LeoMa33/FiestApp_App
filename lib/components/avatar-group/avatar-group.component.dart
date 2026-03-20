@@ -1,16 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:fiestapp/feature/user/domain/models/user.dart';
 import 'package:flutter/material.dart';
-import 'package:openapi/openapi.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class AvatarGroup extends ConsumerWidget {
-  const AvatarGroup({
-    super.key,
-    required this.users,
-    required this.haveBackground,
-    this.textColor,
-    this.text,
-  });
+  const AvatarGroup({super.key, required this.users, required this.haveBackground, this.textColor, this.text});
 
   final List<User> users;
   final bool haveBackground;
@@ -19,7 +13,7 @@ class AvatarGroup extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final maxAvatars = 3;
+    const maxAvatars = 3;
     final displayUsers = users.take(maxAvatars).toList();
 
     final content = Row(
@@ -36,9 +30,8 @@ class AvatarGroup extends ConsumerWidget {
                 left: index * 18,
                 child: CircleAvatar(
                   radius: 15,
-                  backgroundImage: CachedNetworkImageProvider(
-                    user.guid,
-                  ),
+                  backgroundImage: user.ppLink != null ? CachedNetworkImageProvider(user.ppLink!) : null,
+                  child: user.ppLink == null ? Text(user.username[0].toUpperCase()) : null,
                 ),
               );
             }),
@@ -53,9 +46,7 @@ class AvatarGroup extends ConsumerWidget {
         color: haveBackground ? Colors.black.withAlpha(50) : Colors.transparent,
         borderRadius: BorderRadius.circular(25),
       ),
-      child: haveBackground
-          ? Padding(padding: const EdgeInsets.all(10), child: content)
-          : content,
+      child: haveBackground ? Padding(padding: const EdgeInsets.all(10), child: content) : content,
     );
   }
 }

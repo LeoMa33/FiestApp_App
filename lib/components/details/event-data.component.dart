@@ -2,13 +2,11 @@ import 'package:fiestapp/components/button/column-icon-button.component.dart';
 import 'package:fiestapp/components/details/event-description.component.dart';
 import 'package:fiestapp/components/details/event-title.component.dart';
 import 'package:fiestapp/components/details/planning-data-block.component.dart';
-import 'package:fiestapp/core/routing/route_enum.dart';
-import 'package:fiestapp/core/routing/router.dart';
 import 'package:fiestapp/core/utils/date_utils.dart';
+import 'package:fiestapp/feature/event/domain/models/event.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:openapi/openapi.dart';
 
 class EventData extends ConsumerWidget {
   const EventData({super.key, required this.event});
@@ -17,13 +15,7 @@ class EventData extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    bool isInvitation =
-        ref
-            .read(routerProvider)
-            .state
-            .path
-            ?.startsWith(AppRoute.invitation.path) ??
-        false;
+    bool isInvitation = false; // Check si la pagge set une invite
     return Container(
       padding: EdgeInsets.all(10),
       child: Column(

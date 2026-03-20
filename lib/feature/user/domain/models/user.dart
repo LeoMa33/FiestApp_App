@@ -1,7 +1,9 @@
+import 'package:fiestapp/feature/estimation/domain/enum/gender_enum.dart';
+
 class User {
   final String userGuid;
   final String username;
-  final String gender;
+  final Gender gender;
   final int age;
   final int height;
   final int weight;
@@ -23,30 +25,30 @@ class User {
     return User(
       userGuid: json['guid'] as String,
       username: json['username'] as String,
-      gender: json['gender'] as String,
+      gender: Gender.fromString(json['gender'] as String),
       age: json['age'] as int,
       height: json['height'] as int,
       weight: json['weight'] as int,
-      alcoholConsumption: json['gender'] as String,
-      ppLink: json['pp_link'] as String,
+      alcoholConsumption: json['alcohol_consumption'] as String,
+      ppLink: json['pp_link'] as String?,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'username': username,
-      'gender': gender,
+      'gender': gender.value,
       'age': age,
       'weight': weight,
       'height': height,
-      'alcoholConsumption': alcoholConsumption,
+      'alcohol_consumption': alcoholConsumption,
     };
   }
 
   User copyWith({
     String? userGuid,
     String? username,
-    String? gender,
+    Gender? gender,
     int? age,
     int? height,
     int? weight,
