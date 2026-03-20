@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:fiestapp/feature/auth/data/dto/auth_dto.dart';
+import 'package:fiestapp/feature/auth/data/dto/auth_response_dto.dart';
 
 class AuthModule {
   final Dio _dio;
@@ -7,16 +8,22 @@ class AuthModule {
   final baseRoute = '/auth';
   AuthModule(this._dio);
 
-  login(AuthDto data) async {
-    await _dio.post('$baseRoute/login', data: data.toJson());
+  Future<AuthResponseDto> login(AuthDto data) async {
+    final response = await _dio.post('$baseRoute/login', data: data.toJson());
+    return AuthResponseDto.fromJson(response.data);
   }
 
-  register(AuthDto data) async {
-    await _dio.post('$baseRoute/register', data: data.toJson());
+  Future<AuthResponseDto> register(AuthDto data) async {
+    final response = await _dio.post(
+      '$baseRoute/register',
+      data: data.toJson(),
+    );
+    return AuthResponseDto.fromJson(response.data);
   }
 
-  refresh() async {
-    await _dio.post('$baseRoute/refresh');
+  Future<AuthResponseDto> refresh() async {
+    final response = await _dio.post('$baseRoute/refresh');
+    return AuthResponseDto.fromJson(response.data);
   }
 
   updateCredential(data) async {

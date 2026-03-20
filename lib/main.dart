@@ -41,14 +41,13 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final router = ref.watch(routerProvider);
-    initDeepLinkListener(router);
+    initDeepLinkListener(AppRouter.router);
 
     FlutterNativeSplash.remove();
 
     return MaterialApp.router(
       title: 'FiestApp',
-      routerConfig: router,
+      routerConfig: AppRouter.router,
       localizationsDelegates: GlobalMaterialLocalizations.delegates,
       supportedLocales: [const Locale('fr')],
       debugShowCheckedModeBanner: false,

@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:fiestapp/feature/estimation/domain/enum/estimation_enum.dart';
+import 'package:fiestapp/feature/estimation/domain/enum/gender_enum.dart';
 
 class UserCreateDto {
   final String name;
@@ -9,6 +10,7 @@ class UserCreateDto {
   final double weight;
   final double height;
   final AlcoholConsumption alcoholConsumption;
+  final Gender gender;
   final File? profilePicture;
 
   UserCreateDto({
@@ -18,6 +20,7 @@ class UserCreateDto {
     required this.weight,
     required this.height,
     required this.alcoholConsumption,
+    required this.gender,
     this.profilePicture,
   });
 
@@ -29,6 +32,7 @@ class UserCreateDto {
       'weight': weight,
       'height': height,
       'alcohol_consumption': alcoholConsumption.name,
+      'gender': gender.value,
     };
   }
 }

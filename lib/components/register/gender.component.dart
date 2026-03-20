@@ -1,29 +1,17 @@
 import 'package:fiestapp/components/custom-card/illustration-card/illustration-card.component.dart';
+import 'package:fiestapp/feature/estimation/domain/enum/gender_enum.dart';
+import 'package:fiestapp/feature/user/data/provider/user_create_state.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-class GenderSelector extends StatefulWidget {
-  const GenderSelector({super.key, required this.controller});
-
-  final TextEditingController controller;
+class GenderSelector extends ConsumerWidget {
+  const GenderSelector({super.key});
 
   @override
-  State<GenderSelector> createState() => _GenderSelectorState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final selectedGender = ref.watch(userCreateProvider).gender;
 
-class _GenderSelectorState extends State<GenderSelector> {
-  String? selectedGender = "Female";
-
-  void _selectGender(String gender) {
-    setState(() {
-      print(gender);
-      selectedGender = gender;
-      widget.controller.text = gender;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return Row(
       children: [
         Expanded(
@@ -33,9 +21,11 @@ class _GenderSelectorState extends State<GenderSelector> {
             iconColor: const Color(0xffFB8257),
             principalLabel: "Femme",
             secondaryLabel: 'Sexe',
-            isSelected: selectedGender == 'Female',
-            onClick: () => _selectGender('Female'),
-            gradient: selectedGender == 'Female'
+            isSelected: selectedGender == Gender.woman,
+            onClick: () => ref
+                .read(userCreateProvider.notifier)
+                .updateGender(Gender.woman),
+            gradient: selectedGender == Gender.woman
                 ? const LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
@@ -52,9 +42,10 @@ class _GenderSelectorState extends State<GenderSelector> {
             iconColor: const Color(0xffFB8257),
             principalLabel: 'Homme',
             secondaryLabel: 'Sexe',
-            isSelected: selectedGender == 'Male',
-            onClick: () => _selectGender('Male'),
-            gradient: selectedGender == 'Male'
+            isSelected: selectedGender == Gender.man,
+            onClick: () =>
+                ref.read(userCreateProvider.notifier).updateGender(Gender.man),
+            gradient: selectedGender == Gender.man
                 ? const LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,

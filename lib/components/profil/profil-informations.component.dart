@@ -1,6 +1,7 @@
 import 'package:fiestapp/components/custom-card/illustration-card/illustration-card.component.dart';
 import 'package:fiestapp/components/text/custom-title.component.dart';
 import 'package:fiestapp/constant.dart';
+import 'package:fiestapp/feature/estimation/domain/enum/gender_enum.dart';
 import 'package:fiestapp/feature/user/domain/models/user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,7 +15,7 @@ class ProfilInformations extends ConsumerWidget {
     final currentUser = User(
       userGuid: 'user-1',
       username: 'Léo',
-      gender: 'male',
+      gender: Gender.man,
       age: 25,
       height: 180,
       weight: 75,
@@ -43,7 +44,8 @@ class ProfilInformations extends ConsumerWidget {
                 imageSize: 50,
                 s3ImageUrl: "${S3_enpoint}asset/taille.webp",
                 principalLabel: 'Taille',
-                secondaryLabel: '${currentUser.height ~/ 100}m${currentUser.height % 100}',
+                secondaryLabel:
+                    '${currentUser.height ~/ 100}m${currentUser.height % 100}',
               ),
               IllustrationCard(
                 imageSize: 50,

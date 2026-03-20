@@ -2,6 +2,7 @@ import 'package:fiestapp/components/avatar-group/avatar-group.component.dart';
 import 'package:fiestapp/components/organisation/poll/poll-choice.composent.dart';
 import 'package:fiestapp/core/common_widgets/button/button.component.dart';
 import 'package:fiestapp/enum.dart';
+import 'package:fiestapp/feature/estimation/domain/enum/gender_enum.dart';
 import 'package:fiestapp/feature/poll/domain/models/poll.dart';
 import 'package:fiestapp/feature/user/domain/models/user.dart';
 import 'package:flutter/material.dart';
@@ -16,7 +17,8 @@ class SondageCard extends StatefulWidget {
   State<SondageCard> createState() => _SondageCardState();
 }
 
-class _SondageCardState extends State<SondageCard> with SingleTickerProviderStateMixin {
+class _SondageCardState extends State<SondageCard>
+    with SingleTickerProviderStateMixin {
   bool _isExpanded = false;
   String? _selectedGuid;
   bool _hasValidated = false;
@@ -37,7 +39,9 @@ class _SondageCardState extends State<SondageCard> with SingleTickerProviderStat
 
   PollChoiceStatus getStatus(String guid) {
     if (_hasValidated) {
-      return _selectedGuid == guid ? PollChoiceStatus.validated : PollChoiceStatus.none;
+      return _selectedGuid == guid
+          ? PollChoiceStatus.validated
+          : PollChoiceStatus.none;
     } else if (_selectedGuid == guid) {
       return PollChoiceStatus.selected;
     } else {
@@ -58,9 +62,17 @@ class _SondageCardState extends State<SondageCard> with SingleTickerProviderStat
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(30),
-            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 2))],
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-          child: _isExpanded ? _buildExpandedContent() : _buildCollapsedContent(),
+          child: _isExpanded
+              ? _buildExpandedContent()
+              : _buildCollapsedContent(),
         ),
       ),
     );
@@ -72,7 +84,7 @@ class _SondageCardState extends State<SondageCard> with SingleTickerProviderStat
       User(
         userGuid: 'u1',
         username: 'User 1',
-        gender: 'M',
+        gender: Gender.man,
         age: 20,
         height: 170,
         weight: 60,
@@ -82,7 +94,7 @@ class _SondageCardState extends State<SondageCard> with SingleTickerProviderStat
       User(
         userGuid: 'u2',
         username: 'User 2',
-        gender: 'F',
+        gender: Gender.woman,
         age: 22,
         height: 165,
         weight: 55,
@@ -91,7 +103,8 @@ class _SondageCardState extends State<SondageCard> with SingleTickerProviderStat
       ),
     ];
 
-    final String usersLengthText = "${mockVoters.length} participant${mockVoters.length <= 1 ? '' : 's'}";
+    final String usersLengthText =
+        "${mockVoters.length} participant${mockVoters.length <= 1 ? '' : 's'}";
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -99,14 +112,26 @@ class _SondageCardState extends State<SondageCard> with SingleTickerProviderStat
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(widget.poll.question, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+            Text(
+              widget.poll.question,
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+            ),
             const SizedBox(height: 5),
-            AvatarGroup(users: mockVoters, haveBackground: false, textColor: Colors.black, text: usersLengthText),
+            AvatarGroup(
+              users: mockVoters,
+              haveBackground: false,
+              textColor: Colors.black,
+              text: usersLengthText,
+            ),
           ],
         ),
         Column(
           children: const [
-            FaIcon(FontAwesomeIcons.hourglass, color: Color(0xffE15B42), size: 17),
+            FaIcon(
+              FontAwesomeIcons.hourglass,
+              color: Color(0xffE15B42),
+              size: 17,
+            ),
             Text("10h"),
           ],
         ),
@@ -118,7 +143,10 @@ class _SondageCardState extends State<SondageCard> with SingleTickerProviderStat
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(widget.poll.question, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+        Text(
+          widget.poll.question,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+        ),
         const SizedBox(height: 15),
         Column(
           children: widget.poll.pollOptions.map((option) {

@@ -6,11 +6,11 @@ import 'package:fiestapp/components/add-event/address-block.component.dart';
 import 'package:fiestapp/components/add-event/informations-block.component.dart';
 import 'package:fiestapp/components/image-selector/image-selector.component.dart';
 import 'package:fiestapp/core/common_widgets/button/button.component.dart';
-import 'package:fiestapp/core/routing/router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -35,7 +35,11 @@ class AddEvent extends ConsumerWidget {
                   Column(
                     spacing: 20,
                     children: [
-                      ImageSelector(title: "Sélectionnez une image", height: 130, onImageSelect: (XFile? image) {}),
+                      ImageSelector(
+                        title: "Sélectionnez une image",
+                        height: 130,
+                        onImageSelect: (XFile? image) {},
+                      ),
                       AddEventDateTime(),
                       AddEvenInformationsBlock(),
                       AddEventAdressBlock(),
@@ -52,7 +56,7 @@ class AddEvent extends ConsumerWidget {
                   CustomButton(
                     label: "Créer l'évènement",
                     icon: FontAwesomeIcons.arrowRight,
-                    onPressed: () => {_submitForm(ref, context), ref.read(routerProvider).pop()},
+                    onPressed: () => {_submitForm(ref, context), context.pop},
                   ),
                 ],
               ),
@@ -87,6 +91,8 @@ class AddEvent extends ConsumerWidget {
   }
 
   void _showError(String message, context) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message), backgroundColor: Colors.red));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: Colors.red),
+    );
   }
 }

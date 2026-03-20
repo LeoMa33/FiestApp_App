@@ -2,8 +2,6 @@ import 'package:fiestapp/components/button/column-icon-button.component.dart';
 import 'package:fiestapp/components/details/event-description.component.dart';
 import 'package:fiestapp/components/details/event-title.component.dart';
 import 'package:fiestapp/components/details/planning-data-block.component.dart';
-import 'package:fiestapp/core/routing/route_enum.dart';
-import 'package:fiestapp/core/routing/router.dart';
 import 'package:fiestapp/core/utils/date_utils.dart';
 import 'package:fiestapp/feature/event/domain/models/event.dart';
 import 'package:flutter/material.dart';
@@ -17,13 +15,16 @@ class EventData extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    bool isInvitation = ref.read(routerProvider).state.path?.startsWith(AppRoute.invitation.path) ?? false;
+    bool isInvitation = false; // Check si la pagge set une invite
     return Container(
       padding: EdgeInsets.all(10),
       child: Column(
         spacing: 10,
         children: [
-          PlanningDataBlock(date: formatDate(event.date.toInt()), hour: formatHour(event.date.toInt())),
+          PlanningDataBlock(
+            date: formatDate(event.date.toInt()),
+            hour: formatHour(event.date.toInt()),
+          ),
           EventTitle(title: event.title, adress: event.location),
 
           if (isInvitation)
@@ -41,7 +42,11 @@ class EventData extends ConsumerWidget {
                     ),
                   ),
                   Expanded(
-                    child: ColumnIconButton(icon: FontAwesomeIcons.circleCheck, label: 'Accepter', onPressed: () => {}),
+                    child: ColumnIconButton(
+                      icon: FontAwesomeIcons.circleCheck,
+                      label: 'Accepter',
+                      onPressed: () => {},
+                    ),
                   ),
                   Expanded(
                     child: ColumnIconButton(

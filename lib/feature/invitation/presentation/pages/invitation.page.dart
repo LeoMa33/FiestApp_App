@@ -1,5 +1,6 @@
 import 'package:fiestapp/components/details/details-header.component.dart';
 import 'package:fiestapp/components/details/event-data-with-map.component.dart';
+import 'package:fiestapp/feature/estimation/domain/enum/gender_enum.dart';
 import 'package:fiestapp/feature/event/domain/models/event.dart';
 import 'package:fiestapp/feature/user/domain/models/user.dart';
 import 'package:flutter/material.dart';
@@ -43,7 +44,7 @@ class InvitationState extends ConsumerState<Invitation> {
       organizer: User(
         userGuid: 'user-1',
         username: 'Léo',
-        gender: 'male',
+        gender: Gender.man,
         age: 25,
         height: 180,
         weight: 75,
@@ -61,7 +62,8 @@ class InvitationState extends ConsumerState<Invitation> {
         body: FutureBuilder<Event>(
           future: Future.delayed(const Duration(seconds: 1), () => mockEvent),
           builder: (context, snapshot) {
-            final isLoading = snapshot.connectionState == ConnectionState.waiting;
+            final isLoading =
+                snapshot.connectionState == ConnectionState.waiting;
             final event = snapshot.data ?? mockEvent;
 
             return Skeletonizer(
@@ -69,12 +71,19 @@ class InvitationState extends ConsumerState<Invitation> {
               child: Column(
                 spacing: 10,
                 children: [
-                  if (!isMapExpanded) DetailsHeader(height: MediaQuery.sizeOf(context).height / 3),
+                  if (!isMapExpanded)
+                    DetailsHeader(
+                      height: MediaQuery.sizeOf(context).height / 3,
+                    ),
                   Expanded(
                     flex: 2,
                     child: Padding(
                       padding: const EdgeInsets.all(10),
-                      child: EventDetailsWithMap(isMapExpanded: isMapExpanded, onExpandToggle: ExpandMap, event: event),
+                      child: EventDetailsWithMap(
+                        isMapExpanded: isMapExpanded,
+                        onExpandToggle: ExpandMap,
+                        event: event,
+                      ),
                     ),
                   ),
                 ],

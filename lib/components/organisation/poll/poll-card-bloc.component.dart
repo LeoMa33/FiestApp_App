@@ -1,6 +1,7 @@
 import 'package:fiestapp/components/modal/create-poll-modal.dart';
 import 'package:fiestapp/components/organisation-item/add.component.dart';
 import 'package:fiestapp/components/organisation/poll/poll-card.component.dart';
+import 'package:fiestapp/feature/estimation/domain/enum/gender_enum.dart';
 import 'package:fiestapp/feature/event/domain/models/event.dart';
 import 'package:fiestapp/feature/poll/domain/models/poll-option.dart';
 import 'package:fiestapp/feature/poll/domain/models/poll.dart';
@@ -31,7 +32,7 @@ class _SondageCardBlocState extends ConsumerState<SondageCardBloc> {
     final mockUser = User(
       userGuid: 'user-1',
       username: 'Léo',
-      gender: 'male',
+      gender: Gender.man,
       age: 25,
       height: 180,
       weight: 75,
@@ -70,7 +71,12 @@ class _SondageCardBlocState extends ConsumerState<SondageCardBloc> {
     return Column(
       spacing: 10,
       children: [
-        AddCard(height: 85, width: double.infinity, radius: 30, onClick: onClick),
+        AddCard(
+          height: 85,
+          width: double.infinity,
+          radius: 30,
+          onClick: onClick,
+        ),
         for (Poll poll in mockPolls) SondageCard(poll: poll),
       ],
     );

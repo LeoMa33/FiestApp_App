@@ -2,6 +2,7 @@ import 'package:fiestapp/components/avatar-group/avatar-group.component.dart';
 import 'package:fiestapp/components/button/profil-image-button.component.dart';
 import 'package:fiestapp/core/common_widgets/button/button.component.dart';
 import 'package:fiestapp/enum.dart';
+import 'package:fiestapp/feature/estimation/domain/enum/gender_enum.dart';
 import 'package:fiestapp/feature/event/domain/models/event.dart';
 import 'package:fiestapp/feature/user/domain/models/user.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +18,8 @@ class WhoDriveCard extends ConsumerStatefulWidget {
   ConsumerState<WhoDriveCard> createState() => _WhoDriveCardState();
 }
 
-class _WhoDriveCardState extends ConsumerState<WhoDriveCard> with SingleTickerProviderStateMixin {
+class _WhoDriveCardState extends ConsumerState<WhoDriveCard>
+    with SingleTickerProviderStateMixin {
   bool _isExpanded = false;
 
   void toggleExpand() {
@@ -41,7 +43,7 @@ class _WhoDriveCardState extends ConsumerState<WhoDriveCard> with SingleTickerPr
     final currentUser = User(
       userGuid: 'user-1',
       username: 'Léo',
-      gender: 'male',
+      gender: Gender.man,
       age: 25,
       height: 180,
       weight: 75,
@@ -75,10 +77,16 @@ class _WhoDriveCardState extends ConsumerState<WhoDriveCard> with SingleTickerPr
             color: Colors.white,
             borderRadius: BorderRadius.circular(30),
             boxShadow: [
-              BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 2)),
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 2),
+              ),
             ],
           ),
-          child: _isExpanded ? _buildExpandedContent(currentUser, event) : _buildCollapsedContent(currentUser, event),
+          child: _isExpanded
+              ? _buildExpandedContent(currentUser, event)
+              : _buildCollapsedContent(currentUser, event),
         ),
       ),
     );
@@ -98,13 +106,26 @@ class _WhoDriveCardState extends ConsumerState<WhoDriveCard> with SingleTickerPr
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(currentUser.username, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                Text(
+                  currentUser.username,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    const Icon(Icons.location_on, size: 14, color: Color(0xffE15B42)),
+                    const Icon(
+                      Icons.location_on,
+                      size: 14,
+                      color: Color(0xffE15B42),
+                    ),
                     const SizedBox(width: 4),
-                    Text(event.location, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                    Text(
+                      event.location,
+                      style: const TextStyle(fontSize: 12, color: Colors.grey),
+                    ),
                   ],
                 ),
               ],
@@ -119,7 +140,11 @@ class _WhoDriveCardState extends ConsumerState<WhoDriveCard> with SingleTickerPr
           ),
           child: Text(
             "$_emoji 1/5",
-            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xffE15B42)),
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: Color(0xffE15B42),
+            ),
           ),
         ),
       ],

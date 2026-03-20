@@ -3,12 +3,14 @@ import 'package:fiestapp/components/home/header/home-header.component.dart';
 import 'package:fiestapp/components/home/next-event/next-event.component.dart';
 import 'package:fiestapp/components/home/participation/you-participate.component.dart';
 import 'package:fiestapp/core/routing/route_enum.dart';
-import 'package:fiestapp/core/routing/router.dart';
+import 'package:fiestapp/feature/estimation/domain/enum/gender_enum.dart';
 import 'package:fiestapp/feature/event/domain/models/event.dart';
+import 'package:fiestapp/feature/user/data/provider/user_state.dart';
 import 'package:fiestapp/feature/user/domain/models/user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 class Home extends ConsumerStatefulWidget {
@@ -39,7 +41,7 @@ class _HomeState extends ConsumerState<Home> {
           organizer: User(
             userGuid: 'user-1',
             username: 'Léo',
-            gender: 'M',
+            gender: Gender.man,
             age: 25,
             height: 180,
             weight: 75,
@@ -55,7 +57,7 @@ class _HomeState extends ConsumerState<Home> {
 
   @override
   Widget build(BuildContext context) {
-    final user = {'username': 'test'};
+    final user = ref.watch(userSessionProvider).user;
     return Scaffold(
       backgroundColor: Color(0xffF4F1F7),
       resizeToAvoidBottomInset: false,
@@ -67,12 +69,12 @@ class _HomeState extends ConsumerState<Home> {
         width: 80,
         size: 20,
         onClick: () {
-          ref.read(routerProvider).push(AppRoute.addEvent.path);
+          context.go(AppRoute.addEvent.path);
         },
       ),
       body: Column(
         children: [
-          HomeHeader(userName: user['username'] ?? "Utilisateur"),
+          HomeHeader(userName: user?.name ?? "Utilisateur"),
           Expanded(
             child: SingleChildScrollView(
               child: Padding(
@@ -82,7 +84,8 @@ class _HomeState extends ConsumerState<Home> {
                   child: FutureBuilder<List<Event>>(
                     future: _future,
                     builder: (context, snapshot) {
-                      final isLoading = snapshot.connectionState == ConnectionState.waiting;
+                      final isLoading =
+                          snapshot.connectionState == ConnectionState.waiting;
                       final events = snapshot.data ?? [];
 
                       return Skeletonizer(

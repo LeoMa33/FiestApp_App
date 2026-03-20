@@ -3,6 +3,7 @@ import 'package:fiestapp/components/profil/profil-events.component.dart';
 import 'package:fiestapp/components/profil/profil-header.component.dart';
 import 'package:fiestapp/components/profil/profil-informations.component.dart';
 import 'package:fiestapp/feature/estimation/domain/enum/estimation_enum.dart';
+import 'package:fiestapp/feature/estimation/domain/enum/gender_enum.dart';
 import 'package:fiestapp/feature/user/domain/models/user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -23,7 +24,7 @@ class ProfilState extends ConsumerState<Profil> {
   final User? currentUser = User(
     userGuid: 'user-1',
     username: 'Léo',
-    gender: 'male',
+    gender: Gender.man,
     age: 25,
     height: 180,
     weight: 75,
@@ -61,19 +62,30 @@ class ProfilState extends ConsumerState<Profil> {
                         children: [
                           if (currentUser != null)
                             FaIcon(
-                              currentUser!.gender == 'female' ? FontAwesomeIcons.venus : FontAwesomeIcons.mars,
+                              currentUser!.gender == 'female'
+                                  ? FontAwesomeIcons.venus
+                                  : FontAwesomeIcons.mars,
                               size: 16,
-                              color: Color(currentUser!.gender == 'female' ? 0xffFB8257 : 0xff87D5C8),
+                              color: Color(
+                                currentUser!.gender == 'female'
+                                    ? 0xffFB8257
+                                    : 0xff87D5C8,
+                              ),
                             ),
                           Text(
                             currentUser?.username ?? BoneMock.name,
-                            style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ],
                       ),
                       Text(
                         formatAlcoholConsumption(
-                              AlcoholConsumption.fromString(currentUser?.alcoholConsumption ?? ''),
+                              AlcoholConsumption.fromString(
+                                currentUser?.alcoholConsumption ?? '',
+                              ),
                             ) ??
                             BoneMock.name,
                       ),

@@ -4,6 +4,7 @@ import 'package:fiestapp/components/input/slider.component.dart';
 import 'package:fiestapp/components/register/gender.component.dart';
 import 'package:fiestapp/enum.dart';
 import 'package:fiestapp/feature/estimation/domain/enum/estimation_enum.dart';
+import 'package:fiestapp/feature/user/data/provider/user_create_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -19,20 +20,22 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
   late TextEditingController _weightController;
   late TextEditingController _nameController;
   late TextEditingController _ageController;
-  late TextEditingController _genderController;
-  late TextEditingController _fileController;
   late TextEditingController _alcoholConsumptionController;
 
   @override
   void initState() {
     super.initState();
 
-    _heightController = TextEditingController();
-    _weightController = TextEditingController();
-    _genderController = TextEditingController();
-    _nameController = TextEditingController();
-    _ageController = TextEditingController();
-    _fileController = TextEditingController();
+    final initialState = ref.read(userCreateProvider);
+
+    _heightController = TextEditingController(
+      text: (initialState.height * 100).toInt().toString(),
+    );
+    _weightController = TextEditingController(
+      text: initialState.weight.toInt().toString(),
+    );
+    _nameController = TextEditingController(text: initialState.name);
+    _ageController = TextEditingController(text: initialState.age.toString());
     _alcoholConsumptionController = TextEditingController();
   }
 
@@ -41,9 +44,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
     _heightController.dispose();
     _weightController.dispose();
     _nameController.dispose();
-    _genderController.dispose();
     _ageController.dispose();
-    _fileController.dispose();
     _alcoholConsumptionController.dispose();
     super.dispose();
   }
@@ -64,7 +65,8 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
                   placeholder: "Votre nom",
                   inputType: InputType.text,
                   controller: _nameController,
-                  onChanged: (value) => print("Nom: $value"),
+                  onChanged: (value) =>
+                      ref.read(userCreateProvider.notifier).updateName(value),
                 ),
               ),
               const SizedBox(width: 20),
@@ -76,38 +78,47 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
                   placeholder: "25",
                   inputType: InputType.number,
                   controller: _ageController,
-                  onChanged: (value) => print("Âge: $value"),
+                  onChanged: (value) {
+                    final age = int.tryParse(value);
+                    if (age != null) {
+                      ref.read(userCreateProvider.notifier).updateAge(age);
+                    }
+                  },
                 ),
               ),
             ],
           ),
           const SizedBox(height: 20),
-          GenderSelector(controller: _genderController),
+          const GenderSelector(),
           const SizedBox(height: 20),
           CustomSlider(
             title: "Quelle est votre taille ?",
             min: 120,
             max: 240,
-            value: 170,
+            value: (ref.read(userCreateProvider).height * 100).toInt(),
             unit: "cm",
             controller: _heightController,
-            onChanged: (value) => print("Taille: $value cm"),
+            onChanged: (value) => ref
+                .read(userCreateProvider.notifier)
+                .updateHeight(value.toDouble() / 100),
           ),
           const SizedBox(height: 20),
           CustomSlider(
             title: "Quel est votre poids ?",
             min: 30,
             max: 120,
-            value: 70,
+            value: (ref.read(userCreateProvider).weight).toInt(),
             unit: "kg",
             controller: _weightController,
-            onChanged: (value) => print("Poids: $value kg"),
+            onChanged: (value) => ref
+                .read(userCreateProvider.notifier)
+                .updateWeight(value.toDouble()),
           ),
           const SizedBox(height: 20),
           MinimalEnumSelector<AlcoholConsumption>(
             width: MediaQuery.sizeOf(context).width * 0.6,
             title: "Quel buveur êtes-vous ?",
-            value: AlcoholConsumption.casual,
+            value: ref.watch(userCreateProvider).alcoholConsumption,
             values: AlcoholConsumption.values.toList(),
             controller: _alcoholConsumptionController,
             labelBuilder: (val) {
@@ -123,7 +134,11 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
               }
             },
             onChanged: (newValue) {
-              print("Alcool sélectionné : $newValue");
+              if (newValue != null) {
+                ref
+                    .read(userCreateProvider.notifier)
+                    .updateAlcoholConsumption(newValue);
+              }
             },
           ),
         ],

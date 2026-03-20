@@ -2,11 +2,12 @@ import 'package:fiestapp/components/button/icon-button.component.dart';
 import 'package:fiestapp/components/button/profil-image-button.component.dart';
 import 'package:fiestapp/constant.dart';
 import 'package:fiestapp/core/routing/route_enum.dart';
-import 'package:fiestapp/core/routing/router.dart';
+import 'package:fiestapp/feature/estimation/domain/enum/gender_enum.dart';
 import 'package:fiestapp/feature/user/domain/models/user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
 
 class TopHomeHeader extends ConsumerWidget {
   const TopHomeHeader({super.key, required this.name});
@@ -18,7 +19,7 @@ class TopHomeHeader extends ConsumerWidget {
     final user = User(
       userGuid: 'user-1',
       username: name,
-      gender: 'male',
+      gender: Gender.man,
       age: 25,
       height: 180,
       weight: 75,
@@ -36,11 +37,19 @@ class TopHomeHeader extends ConsumerWidget {
           children: [
             const Text(
               'Bienvenue',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: Colors.white),
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.normal,
+                color: Colors.white,
+              ),
             ),
             Text(
               name,
-              style: const TextStyle(fontSize: 24, color: Colors.white, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                fontSize: 24,
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ],
         ),
@@ -53,13 +62,13 @@ class TopHomeHeader extends ConsumerWidget {
               iconColor: Colors.black,
               backgroundColor: Colors.white,
               onClick: () {
-                ref.read(routerProvider).push(AppRoute.notification.path);
+                context.go(AppRoute.notification.path);
               },
             ),
             ProfilImageButton(
               imagePath: "${S3_enpoint}user/${user.userGuid}.webp",
               onClick: () {
-                ref.read(routerProvider).push(AppRoute.profil.path);
+                context.go(AppRoute.profil.path);
               },
             ),
           ],
