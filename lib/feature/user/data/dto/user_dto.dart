@@ -6,9 +6,9 @@ class UserDto {
   final String name;
   final String mail;
   final int age;
-  final double weight;
+  final int weight;
   final String? imageUrl;
-  final double height;
+  final int height;
   final AlcoholConsumption alcoholConsumption;
   final Gender gender;
 
@@ -25,14 +25,15 @@ class UserDto {
   });
 
   factory UserDto.fromJson(Map<String, dynamic> json) {
+    print(json);
     return UserDto(
       id: json['id'] as String,
       name: json['name'] as String,
       mail: json['mail'] as String,
       age: (json['age'] as num).toInt(),
-      weight: int.parse(json['weight'] as String).toDouble(),
+      weight: (json['weight'] as num).toInt(),
       imageUrl: json['imageUrl'] as String?,
-      height: int.parse(json['height'] as String).toDouble(),
+      height: (json['height'] as num).toInt(),
       alcoholConsumption: AlcoholConsumption.values.byName(
         json['alcohol_consumption'] as String,
       ),

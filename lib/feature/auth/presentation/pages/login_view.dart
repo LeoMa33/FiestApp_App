@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:fiestapp/core/common_widgets/button/button.component.dart';
 import 'package:fiestapp/core/network/client/api_client_provider.dart';
 import 'package:fiestapp/core/network/dio_provider.dart';
+import 'package:fiestapp/core/routing/route_enum.dart';
 import 'package:fiestapp/feature/auth/data/auth_service.dart';
 import 'package:fiestapp/feature/auth/data/dto/auth_dto.dart';
 import 'package:fiestapp/feature/user/data/provider/user_create_state.dart';
@@ -10,8 +11,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
-
-import '../../../../core/routing/route_enum.dart';
 
 class LoginView extends ConsumerStatefulWidget {
   const LoginView({super.key});
@@ -41,7 +40,7 @@ class _LoginViewState extends ConsumerState<LoginView> {
       const storage = FlutterSecureStorage();
       final apiClient = ref.read(apiClientProvider);
 
-      final token = await AuthService.login(
+      await AuthService.login(
         apiClient: apiClient,
         storage: storage,
         dto: AuthDto(
@@ -50,7 +49,11 @@ class _LoginViewState extends ConsumerState<LoginView> {
         ),
       );
 
-      ref.read(tokenProvider.notifier).state = token;
+      final savedToken = await storage.read(key: 'jwt_token');
+      final refreshToken = await storage.read(key: 'refresh_token');
+
+      ref.read(tokenProvider.notifier).state = savedToken;
+      ref.read(refreshTokenProvider.notifier).state = refreshToken;
 
       final user = await AuthService.getMe(
         apiClient: apiClient,

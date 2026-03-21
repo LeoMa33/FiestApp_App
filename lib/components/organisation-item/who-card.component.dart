@@ -1,10 +1,13 @@
-import 'package:fiestapp/components/avatar-group/avatar-group.component.dart';
 import 'package:fiestapp/components/button/profil-image-button.component.dart';
 import 'package:fiestapp/core/common_widgets/button/button.component.dart';
 import 'package:fiestapp/enum.dart';
-import 'package:fiestapp/feature/estimation/domain/enum/gender_enum.dart';
-import 'package:fiestapp/feature/event/domain/models/event.dart';
-import 'package:fiestapp/feature/user/domain/models/user.dart';
+import 'package:fiestapp/feature/estimation/data/dto/estimation_dto.dart';
+import 'package:fiestapp/feature/event/data/dto/event_dto.dart';
+import 'package:fiestapp/feature/event/data/dto/location_dto.dart';
+import 'package:fiestapp/feature/user/data/dto/user_dto.dart';
+import 'package:fiestapp/feature/user/data/dto/user_light_dto.dart';
+import 'package:fiestapp/feature/user/data/provider/user_state.dart';
+import 'package:fiestapp/feature/user/presentation/widgets/external/avatar_group.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -39,30 +42,19 @@ class _WhoDriveCardState extends ConsumerState<WhoDriveCard>
 
   @override
   Widget build(BuildContext context) {
-    // Mock du user
-    final currentUser = User(
-      userGuid: 'user-1',
-      username: 'Léo',
-      gender: Gender.man,
-      age: 25,
-      height: 180,
-      weight: 75,
-      alcoholConsumption: 'casual',
-      ppLink: null,
-    );
+    final currentUser = ref.read(userSessionProvider).user;
 
     // Mock de l'event
-    final event = Event(
-      guid: '1',
-      title: 'Soirée Mock',
-      description: 'Une super soirée de test',
-      location: 'Paris, France',
-      latitute: 48.8566,
-      longitude: 2.3522,
-      date: DateTime.now().millisecondsSinceEpoch,
-      organizer: currentUser,
-      participants: [currentUser],
-      expenses: [],
+    final EventDto mockEvent = EventDto(
+      name: '',
+      id: '',
+      description: '',
+      date: DateTime.now(),
+      address: '',
+      location: LocationDto(lat: 0, long: 0),
+      creator: UserLightDto(id: '', name: ''),
+      participants: [],
+      estimation: EstimationDto(beer: 3, pizza: 3, softDrink: 3),
     );
 
     return GestureDetector(
@@ -85,14 +77,14 @@ class _WhoDriveCardState extends ConsumerState<WhoDriveCard>
             ],
           ),
           child: _isExpanded
-              ? _buildExpandedContent(currentUser, event)
-              : _buildCollapsedContent(currentUser, event),
+              ? _buildExpandedContent(currentUser!, mockEvent)
+              : _buildCollapsedContent(currentUser!, mockEvent),
         ),
       ),
     );
   }
 
-  Widget _buildCollapsedContent(User currentUser, Event event) {
+  Widget _buildCollapsedContent(UserDto currentUser, EventDto event) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -107,7 +99,7 @@ class _WhoDriveCardState extends ConsumerState<WhoDriveCard>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  currentUser.username,
+                  currentUser.name,
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -123,7 +115,7 @@ class _WhoDriveCardState extends ConsumerState<WhoDriveCard>
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      event.location,
+                      event.address,
                       style: const TextStyle(fontSize: 12, color: Colors.grey),
                     ),
                   ],
@@ -151,7 +143,7 @@ class _WhoDriveCardState extends ConsumerState<WhoDriveCard>
     );
   }
 
-  Widget _buildExpandedContent(User currentUser, Event event) {
+  Widget _buildExpandedContent(UserDto currentUser, EventDto event) {
     final String usersLengthText =
         "${event.participants.length} participant${event.participants.length <= 1 ? '' : 's'}";
     return Column(

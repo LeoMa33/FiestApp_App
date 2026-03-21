@@ -1,11 +1,11 @@
 import 'package:fiestapp/components/modal/create-poll-modal.dart';
 import 'package:fiestapp/components/organisation-item/add.component.dart';
 import 'package:fiestapp/components/organisation/poll/poll-card.component.dart';
-import 'package:fiestapp/feature/estimation/domain/enum/gender_enum.dart';
-import 'package:fiestapp/feature/event/domain/models/event.dart';
-import 'package:fiestapp/feature/poll/domain/models/poll-option.dart';
-import 'package:fiestapp/feature/poll/domain/models/poll.dart';
-import 'package:fiestapp/feature/user/domain/models/user.dart';
+import 'package:fiestapp/feature/estimation/data/dto/estimation_dto.dart';
+import 'package:fiestapp/feature/event/data/dto/event_dto.dart';
+import 'package:fiestapp/feature/event/data/dto/location_dto.dart';
+import 'package:fiestapp/feature/poll/data/dto/poll_dto.dart';
+import 'package:fiestapp/feature/user/data/dto/user_light_dto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -28,43 +28,28 @@ class _SondageCardBlocState extends ConsumerState<SondageCardBloc> {
 
   @override
   Widget build(BuildContext context) {
-    // Mock d'un utilisateur
-    final mockUser = User(
-      userGuid: 'user-1',
-      username: 'Léo',
-      gender: Gender.man,
-      age: 25,
-      height: 180,
-      weight: 75,
-      alcoholConsumption: 'casual',
-      ppLink: null,
-    );
-
     // Mock d'un événement
-    final mockEvent = Event(
-      guid: 'event-1',
-      title: 'Soirée Mock',
-      description: 'Description',
-      location: 'Paris',
-      latitute: 48.8566,
-      longitude: 2.3522,
-      date: DateTime.now().millisecondsSinceEpoch,
-      organizer: mockUser,
+    final EventDto mockEvent = EventDto(
+      name: '',
+      id: '',
+      description: '',
+      date: DateTime.now(),
+      address: '',
+      location: LocationDto(lat: 0, long: 0),
+      creator: UserLightDto(id: '', name: ''),
       participants: [],
-      expenses: [],
+      estimation: EstimationDto(beer: 3, pizza: 3, softDrink: 3),
     );
 
     // Mock d'un sondage
-    final List<Poll> mockPolls = [
-      Poll(
-        guid: 'poll-1',
-        event: mockEvent,
-        question: 'On mange quoi ?',
-        pollOptions: [
-          PollOption(guid: 'opt-1', pollGuid: 'poll-1', option: 'Pizza'),
-          PollOption(guid: 'opt-2', pollGuid: 'poll-1', option: 'Burger'),
-        ],
-        createdAt: DateTime.now().millisecondsSinceEpoch,
+    final List<PollDto> mockPolls = [
+      PollDto(
+        id: '',
+        question: '',
+        multiChoice: false,
+        timerEnd: DateTime.now(),
+        options: [],
+        eventId: '',
       ),
     ];
 
@@ -77,7 +62,7 @@ class _SondageCardBlocState extends ConsumerState<SondageCardBloc> {
           radius: 30,
           onClick: onClick,
         ),
-        for (Poll poll in mockPolls) SondageCard(poll: poll),
+        for (PollDto poll in mockPolls) SondageCard(poll: poll),
       ],
     );
   }

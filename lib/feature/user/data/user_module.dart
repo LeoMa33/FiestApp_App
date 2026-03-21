@@ -25,6 +25,8 @@ class UserModule {
       ),
     });
 
+    print(formData);
+
     final response = await _dio.post(
       baseRoute,
       data: formData,
@@ -33,7 +35,6 @@ class UserModule {
       },
     );
 
-    print(response.data);
     return UserDto.fromJson(response.data);
   }
 

@@ -1,17 +1,16 @@
-import 'package:fiestapp/components/avatar-group/avatar-group.component.dart';
 import 'package:fiestapp/components/organisation/poll/poll-choice.composent.dart';
 import 'package:fiestapp/core/common_widgets/button/button.component.dart';
 import 'package:fiestapp/enum.dart';
-import 'package:fiestapp/feature/estimation/domain/enum/gender_enum.dart';
-import 'package:fiestapp/feature/poll/domain/models/poll.dart';
-import 'package:fiestapp/feature/user/domain/models/user.dart';
+import 'package:fiestapp/feature/poll/data/dto/poll_dto.dart';
+import 'package:fiestapp/feature/user/data/dto/user_light_dto.dart';
+import 'package:fiestapp/feature/user/presentation/widgets/external/avatar_group.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class SondageCard extends StatefulWidget {
   const SondageCard({super.key, required this.poll});
 
-  final Poll poll;
+  final PollDto poll;
 
   @override
   State<SondageCard> createState() => _SondageCardState();
@@ -80,27 +79,9 @@ class _SondageCardState extends State<SondageCard>
 
   Widget _buildCollapsedContent() {
     // Mock des participants pour l'affichage
-    final List<User> mockVoters = [
-      User(
-        userGuid: 'u1',
-        username: 'User 1',
-        gender: Gender.man,
-        age: 20,
-        height: 170,
-        weight: 60,
-        alcoholConsumption: 'casual',
-        ppLink: null,
-      ),
-      User(
-        userGuid: 'u2',
-        username: 'User 2',
-        gender: Gender.woman,
-        age: 22,
-        height: 165,
-        weight: 55,
-        alcoholConsumption: 'casual',
-        ppLink: null,
-      ),
+    final List<UserLightDto> mockVoters = [
+      UserLightDto(id: '', name: ''),
+      UserLightDto(id: '', name: ''),
     ];
 
     final String usersLengthText =
@@ -149,17 +130,17 @@ class _SondageCardState extends State<SondageCard>
         ),
         const SizedBox(height: 15),
         Column(
-          children: widget.poll.pollOptions.map((option) {
+          children: widget.poll.options.map((option) {
             return Padding(
               padding: const EdgeInsets.only(bottom: 10),
               child: PollChoice(
-                label: option.option,
+                label: option.value,
                 percentage: 0.5, // Mock pourcentage
-                status: getStatus(option.guid),
+                status: getStatus(option.id),
                 onTap: () {
                   if (!_hasValidated) {
                     setState(() {
-                      _selectedGuid = option.guid;
+                      _selectedGuid = option.id;
                     });
                   }
                 },

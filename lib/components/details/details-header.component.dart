@@ -1,9 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:fiestapp/components/avatar-group/avatar-group.component.dart';
 import 'package:fiestapp/components/button/icon-button.component.dart';
 import 'package:fiestapp/components/modal/invitation-modal.dart';
 import 'package:fiestapp/constant.dart';
-import 'package:fiestapp/feature/event/domain/models/event.dart';
+import 'package:fiestapp/feature/event/data/dto/event_dto.dart';
+import 'package:fiestapp/feature/user/presentation/widgets/external/avatar_group.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -18,7 +18,7 @@ class DetailsHeader extends ConsumerStatefulWidget {
 }
 
 class _DetailsHeaderState extends ConsumerState<DetailsHeader> {
-  late final Event? event;
+  late final EventDto? event;
 
   void goBack() {}
 
@@ -44,7 +44,10 @@ class _DetailsHeaderState extends ConsumerState<DetailsHeader> {
         "${event!.participants.length} participant${event!.participants.length == 1 ? '' : 's'}";
 
     return ClipRRect(
-      borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(40), bottomRight: Radius.circular(40)),
+      borderRadius: const BorderRadius.only(
+        bottomLeft: Radius.circular(40),
+        bottomRight: Radius.circular(40),
+      ),
       child: CachedNetworkImage(
         imageUrl:
             'https://tripxl.com/blog/wp-content/uploads/2024/09/Subsix-Underwater-Nightclub-Niyama-Private-Islands.jpg',
@@ -61,7 +64,10 @@ class _DetailsHeaderState extends ConsumerState<DetailsHeader> {
           width: double.infinity,
           height: widget.height,
           decoration: BoxDecoration(
-            image: DecorationImage(image: CachedNetworkImageProvider(defaultEventImage), fit: BoxFit.cover),
+            image: DecorationImage(
+              image: CachedNetworkImageProvider(defaultEventImage),
+              fit: BoxFit.cover,
+            ),
           ),
           child: headerContent(context, usersLengthText),
         ),

@@ -1,31 +1,19 @@
 import 'package:fiestapp/components/button/icon-button.component.dart';
 import 'package:fiestapp/components/button/profil-image-button.component.dart';
-import 'package:fiestapp/constant.dart';
+import 'package:fiestapp/core/network/s3_service.dart';
 import 'package:fiestapp/core/routing/route_enum.dart';
-import 'package:fiestapp/feature/estimation/domain/enum/gender_enum.dart';
-import 'package:fiestapp/feature/user/domain/models/user.dart';
+import 'package:fiestapp/feature/user/data/provider/user_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 
-class TopHomeHeader extends ConsumerWidget {
-  const TopHomeHeader({super.key, required this.name});
-
-  final String name;
+class WelcomeHeader extends ConsumerWidget {
+  const WelcomeHeader({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final user = User(
-      userGuid: 'user-1',
-      username: name,
-      gender: Gender.man,
-      age: 25,
-      height: 180,
-      weight: 75,
-      alcoholConsumption: 'casual',
-      ppLink: null,
-    );
+    final user = ref.watch(userSessionProvider).user;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -44,7 +32,7 @@ class TopHomeHeader extends ConsumerWidget {
               ),
             ),
             Text(
-              name,
+              user?.name ?? 'Utilisateur',
               style: const TextStyle(
                 fontSize: 24,
                 color: Colors.white,
@@ -66,7 +54,7 @@ class TopHomeHeader extends ConsumerWidget {
               },
             ),
             ProfilImageButton(
-              imagePath: "${S3_enpoint}user/${user.userGuid}.webp",
+              imagePath: S3Service.getUserImage(user?.imageUrl),
               onClick: () {
                 context.go(AppRoute.profil.path);
               },

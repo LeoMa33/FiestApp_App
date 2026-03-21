@@ -4,8 +4,8 @@ class UserUpdateDto {
   final String? name;
   final String? mail;
   final int? age;
-  final double? weight;
-  final double? height;
+  final int? weight;
+  final int? height;
   final AlcoholConsumption? alcoholConsumption;
 
   UserUpdateDto({
@@ -30,24 +30,5 @@ class UserUpdateDto {
     }
 
     return data;
-  }
-
-  factory UserUpdateDto.fromJson(Map<String, dynamic> json) {
-    return UserUpdateDto(
-      name: json['name'] as String?,
-      mail: json['mail'] as String?,
-      age: json['age'] != null ? (json['age'] as num).toInt() : null,
-      weight: json['weight'] != null
-          ? (json['weight'] as num).toDouble()
-          : null,
-      height: json['height'] != null
-          ? (json['height'] as num).toDouble()
-          : null,
-      alcoholConsumption: json['alcohol_consumption'] != null
-          ? AlcoholConsumption.values.byName(
-              json['alcohol_consumption'] as String,
-            )
-          : null,
-    );
   }
 }

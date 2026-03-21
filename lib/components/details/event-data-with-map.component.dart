@@ -2,7 +2,7 @@ import 'package:fiestapp/components/button/icon-button.component.dart';
 import 'package:fiestapp/components/details/event-data.component.dart';
 import 'package:fiestapp/constant.dart';
 import 'package:fiestapp/core/utils/image_converter.dart';
-import 'package:fiestapp/feature/event/domain/models/event.dart';
+import 'package:fiestapp/feature/event/data/dto/event_dto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,7 +13,7 @@ import 'package:permission_handler/permission_handler.dart';
 class EventDetailsWithMap extends ConsumerStatefulWidget {
   final bool isMapExpanded;
   final VoidCallback onExpandToggle;
-  final Event event;
+  final EventDto event;
 
   const EventDetailsWithMap({
     super.key,
@@ -23,7 +23,8 @@ class EventDetailsWithMap extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<EventDetailsWithMap> createState() => _EventDetailsWithMapState();
+  ConsumerState<EventDetailsWithMap> createState() =>
+      _EventDetailsWithMapState();
 }
 
 class _EventDetailsWithMapState extends ConsumerState<EventDetailsWithMap> {
@@ -60,7 +61,8 @@ class _EventDetailsWithMapState extends ConsumerState<EventDetailsWithMap> {
         debugPrint('Location settings error: $e');
       }
 
-      final pointAnnotationManager = await mapboxMap.annotations.createPointAnnotationManager();
+      final pointAnnotationManager = await mapboxMap.annotations
+          .createPointAnnotationManager();
 
       await _addMarker(pointAnnotationManager);
 
@@ -74,11 +76,18 @@ class _EventDetailsWithMapState extends ConsumerState<EventDetailsWithMap> {
 
   Future<void> _addMarker(PointAnnotationManager manager) async {
     try {
-      Uint8List customMarkerImage = await createCustomMarker('${S3_enpoint}event/event.webp');
+      Uint8List customMarkerImage = await createCustomMarker(
+        '${S3_enpoint}event/event.webp',
+      );
 
       await manager.create(
         PointAnnotationOptions(
-          geometry: Point(coordinates: Position(widget.event.longitude, widget.event.latitute)),
+          geometry: Point(
+            coordinates: Position(
+              widget.event.location.long,
+              widget.event.location.lat,
+            ),
+          ),
           image: customMarkerImage,
           iconSize: 1,
         ),
@@ -93,7 +102,11 @@ class _EventDetailsWithMapState extends ConsumerState<EventDetailsWithMap> {
       var status = await Permission.locationWhenInUse.request();
       if (status.isDenied && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Permission de localisation nécessaire pour afficher votre position')),
+          const SnackBar(
+            content: Text(
+              'Permission de localisation nécessaire pour afficher votre position',
+            ),
+          ),
         );
       }
     } catch (e) {
@@ -104,7 +117,12 @@ class _EventDetailsWithMapState extends ConsumerState<EventDetailsWithMap> {
   @override
   Widget build(BuildContext context) {
     final CameraOptions camera = CameraOptions(
-      center: Point(coordinates: Position(widget.event.longitude, widget.event.latitute)),
+      center: Point(
+        coordinates: Position(
+          widget.event.location.long,
+          widget.event.location.lat,
+        ),
+      ),
       zoom: 15,
       bearing: 0,
       pitch: 0,
@@ -121,7 +139,9 @@ class _EventDetailsWithMapState extends ConsumerState<EventDetailsWithMap> {
             clipBehavior: Clip.hardEdge,
             decoration: BoxDecoration(borderRadius: BorderRadius.circular(40)),
             width: double.infinity,
-            height: widget.isMapExpanded ? MediaQuery.of(context).size.height * 0.77 : 200,
+            height: widget.isMapExpanded
+                ? MediaQuery.of(context).size.height * 0.77
+                : 200,
             child: Stack(
               children: [
                 MapWidget(

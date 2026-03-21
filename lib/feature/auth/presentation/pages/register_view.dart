@@ -58,9 +58,11 @@ class _RegisterViewState extends ConsumerState<RegisterView> {
       );
 
       final savedToken = await storage.read(key: 'jwt_token');
+      final refreshToken = await storage.read(key: 'refresh_token');
 
       if (savedToken != null) {
         ref.read(tokenProvider.notifier).state = savedToken;
+        ref.read(refreshTokenProvider.notifier).state = refreshToken;
 
         try {
           await apiClient.users.getMe();

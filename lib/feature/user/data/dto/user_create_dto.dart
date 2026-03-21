@@ -7,8 +7,8 @@ class UserCreateDto {
   final String name;
   final String mail;
   final int age;
-  final double weight;
-  final double height;
+  final int weight;
+  final int height;
   final AlcoholConsumption alcoholConsumption;
   final Gender gender;
   final File? profilePicture;
@@ -31,7 +31,7 @@ class UserCreateDto {
       'age': age,
       'weight': weight,
       'height': height,
-      'alcohol_consumption': alcoholConsumption.name,
+      'alcohol_consumption': alcoholConsumption.value,
       'gender': gender.value,
     };
   }

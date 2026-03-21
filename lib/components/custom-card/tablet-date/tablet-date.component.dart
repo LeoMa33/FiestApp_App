@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 class TabletDate extends StatelessWidget {
   const TabletDate({super.key, required this.date});
 
-  final String date;
+  final DateTime date;
 
-  String get day => getDay(date);
+  String get day => date.day.toString();
 
-  String get month => getMonth(date);
+  String get month => date.month.toString();
 
   String get monthName => getMonthName(date);
 

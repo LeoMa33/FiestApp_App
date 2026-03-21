@@ -25,9 +25,11 @@ class _SplashViewState extends ConsumerState<SplashView> {
     const storage = FlutterSecureStorage();
 
     final savedToken = await storage.read(key: 'jwt_token');
+    final refreshToken = await storage.read(key: 'refresh_token');
 
     if (savedToken != null) {
       ref.read(tokenProvider.notifier).state = savedToken;
+      ref.read(refreshTokenProvider.notifier).state = refreshToken;
     }
 
     final result = await SplashService.checkInitialAuth(

@@ -34,7 +34,10 @@ class AppRouter {
       GoRoute(
         path: AppRoute.details.path,
         name: AppRoute.details.name,
-        builder: (context, state) => const Details(),
+        builder: (context, state) {
+          final id = state.uri.queryParameters['id'];
+          return Details(id: id!);
+        },
       ),
       GoRoute(
         path: "${AppRoute.invitation.path}/:id",

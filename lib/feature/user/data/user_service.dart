@@ -15,6 +15,9 @@ class UserService {
     } on DioException catch (e) {
       print(e);
       rethrow;
+    } catch (e) {
+      print(e);
+      rethrow;
     }
   }
 }

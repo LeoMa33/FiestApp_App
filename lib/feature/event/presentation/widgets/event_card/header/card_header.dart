@@ -12,7 +12,7 @@ class CardHeader extends StatelessWidget {
   });
 
   final String pathImage;
-  final String date;
+  final DateTime date;
   final double height;
   final double width;
 

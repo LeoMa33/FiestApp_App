@@ -1,16 +1,18 @@
 import 'package:fiestapp/components/details/details-header.component.dart';
 import 'package:fiestapp/components/details/event-data-with-map.component.dart';
-import 'package:fiestapp/components/page-switcher/page-switcher.component.dart';
-import 'package:fiestapp/feature/estimation/domain/enum/gender_enum.dart';
-import 'package:fiestapp/feature/event/domain/models/event.dart';
-import 'package:fiestapp/feature/user/domain/models/user.dart';
+import 'package:fiestapp/components/organisation/organisation-bloc.component.dart';
+import 'package:fiestapp/core/common_widgets/page_switcher/page-switcher.component.dart';
+import 'package:fiestapp/feature/estimation/data/dto/estimation_dto.dart';
+import 'package:fiestapp/feature/event/data/dto/event_dto.dart';
+import 'package:fiestapp/feature/event/data/dto/location_dto.dart';
+import 'package:fiestapp/feature/user/data/dto/user_light_dto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../components/organisation/organisation-bloc.component.dart';
-
 class Details extends ConsumerStatefulWidget {
-  const Details({super.key});
+  const Details({super.key, required this.id});
+
+  final String id;
 
   @override
   DetailState createState() => DetailState();
@@ -20,27 +22,17 @@ class DetailState extends ConsumerState<Details> {
   bool isMapExpanded = false;
   int currentPage = 0;
 
-  // Mock de l'événement
-  final Event mockEvent = Event(
-    guid: '1',
-    title: 'Soirée Mock',
-    description: 'Une description détaillée de cette super soirée de test.',
-    location: 'Paris, France',
-    latitute: 48.8566,
-    longitude: 2.3522,
-    date: DateTime.now().millisecondsSinceEpoch,
-    organizer: User(
-      userGuid: 'user-1',
-      username: 'Léo',
-      gender: Gender.man,
-      age: 25,
-      height: 180,
-      weight: 75,
-      alcoholConsumption: 'casual',
-      ppLink: null,
-    ),
+  // TODO Get l'event par son id (widget.id)
+  final EventDto mockEvent = EventDto(
+    name: '',
+    id: '',
+    description: '',
+    date: DateTime.now(),
+    address: '',
+    location: LocationDto(lat: 0, long: 0),
+    creator: UserLightDto(id: '', name: ''),
     participants: [],
-    expenses: [],
+    estimation: EstimationDto(beer: 3, pizza: 3, softDrink: 3),
   );
 
   void expandMap() {

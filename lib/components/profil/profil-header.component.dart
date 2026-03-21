@@ -2,9 +2,12 @@ import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fiestapp/components/profil/profil-top-header.component.dart';
-import 'package:fiestapp/constant.dart';
+import 'package:fiestapp/core/network/s3_service.dart';
+import 'package:fiestapp/feature/user/data/provider/user_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../constant.dart';
 
 class ProfilHeader extends ConsumerWidget {
   const ProfilHeader({super.key, this.allowEdit = true});
@@ -13,19 +16,22 @@ class ProfilHeader extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final currentUser = ref.read(userSessionProvider).user;
+
     return SizedBox(
       height: MediaQuery.sizeOf(context).height / 3.8,
       child: Stack(
         clipBehavior: Clip.none,
         children: [
           ClipRRect(
-            borderRadius: BorderRadius.only(bottomLeft: Radius.circular(40), bottomRight: Radius.circular(40)),
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(40),
+              bottomRight: Radius.circular(40),
+            ),
             child: Container(
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: CachedNetworkImageProvider(
-                    'https://images.unsplash.com/photo-1517457373958-b7bdd4587205?q=80&w=1169&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-                  ),
+                  image: CachedNetworkImageProvider(AppImage.defaultEventImage),
                   fit: BoxFit.cover,
                 ),
               ),
@@ -37,7 +43,9 @@ class ProfilHeader extends ConsumerWidget {
                   child: SafeArea(
                     minimum: EdgeInsets.only(top: 45, left: 10, right: 10),
                     bottom: false,
-                    child: Column(children: [ProfilTopHeader(allowEdit: allowEdit)]),
+                    child: Column(
+                      children: [ProfilTopHeader(allowEdit: allowEdit)],
+                    ),
                   ),
                 ),
               ),
@@ -52,7 +60,9 @@ class ProfilHeader extends ConsumerWidget {
               backgroundColor: Color(0xffF4F1F7),
               child: CircleAvatar(
                 radius: 61.5,
-                backgroundImage: CachedNetworkImageProvider("${S3_enpoint}user/${'fdsfdsf'}.webp"),
+                backgroundImage: CachedNetworkImageProvider(
+                  S3Service.getUserImage(currentUser?.imageUrl),
+                ),
               ),
             ),
           ),
