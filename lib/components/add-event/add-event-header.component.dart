@@ -1,7 +1,9 @@
 import 'package:fiestapp/components/text/custom-title.component.dart';
+import 'package:fiestapp/core/routing/route_enum.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
 
 class AddEventHeader extends ConsumerWidget {
   const AddEventHeader({super.key});
@@ -17,7 +19,7 @@ class AddEventHeader extends ConsumerWidget {
           Align(
             alignment: Alignment.centerLeft,
             child: GestureDetector(
-              onTap: () => Navigator.of(context).pop(),
+              onTap: () => context.goNamed(AppRoute.home.name),
               child: const FaIcon(FontAwesomeIcons.arrowLeft),
             ),
           ),

@@ -1,17 +1,30 @@
-import 'package:fiestapp/feature/event/data/dto/event_dto.dart';
+import 'package:fiestapp/feature/event/data/provider/event_list_state.dart';
 import 'package:fiestapp/feature/event/presentation/widgets/event_card/next_event_card.dart';
+import 'package:fiestapp/feature/user/data/provider/user_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class DismissibleEventList extends ConsumerWidget {
-  DismissibleEventList({super.key});
-
-  final List<EventDto> events = [];
+  const DismissibleEventList({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final eventState = ref.watch(eventListProvider);
+    final userSession = ref.watch(userSessionProvider);
+
+    final events = (eventState.events ?? []).where((event) {
+      final isParticipant = event.participants.any(
+        (p) => p.id == userSession.user?.id,
+      );
+      final isOwner = event.creator.id == userSession.user?.id;
+      final isAfterNow = event.date.isAfter(
+        DateTime.now().subtract(const Duration(minutes: 1)),
+      );
+      return (isParticipant || isOwner) && isAfterNow;
+    }).toList();
+
     if (events.isEmpty) {
-      return SizedBox();
+      return const SizedBox();
     }
 
     return SizedBox(
@@ -35,7 +48,7 @@ class DismissibleEventList extends ConsumerWidget {
                 ? DismissDirection.horizontal
                 : DismissDirection.none,
             onDismissed: (direction) {
-              // TODO Système de changement de card
+              if (events.length > 1) events.add(events.removeAt(0));
             },
             child: NextEventCard(event: events[0]),
           ),

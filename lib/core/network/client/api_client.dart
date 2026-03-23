@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:fiestapp/feature/accomodation/data/accomodation_module.dart';
-import 'package:fiestapp/feature/auth/data/aut_module.dart';
+import 'package:fiestapp/feature/auth/data/auth_module.dart';
 import 'package:fiestapp/feature/event/data/event_module.dart';
 import 'package:fiestapp/feature/expense/data/expense_module.dart';
 import 'package:fiestapp/feature/poll/data/poll_module.dart';

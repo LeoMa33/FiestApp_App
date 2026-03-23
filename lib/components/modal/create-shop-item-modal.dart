@@ -1,4 +1,5 @@
 import 'package:fiestapp/components/input/data-tag-input.component.dart';
+import 'package:fiestapp/constant.dart';
 import 'package:fiestapp/core/common_widgets/button/button.component.dart';
 import 'package:fiestapp/enum.dart';
 import 'package:flutter/material.dart';
@@ -98,7 +99,7 @@ class _CreateShopItemModalState extends State<CreateShopItemModal> {
                         isImageSelectorVisible = !isImageSelectorVisible;
                       }),
                       child: Image.network(
-                        "https://fiestapp-s3.mizury.fr/fiestapp/asset/$selectedImage.webp",
+                        "$S3_enpoint/asset/$selectedImage.webp",
                         height: 80,
                       ),
                     ),
@@ -153,7 +154,7 @@ class _CreateShopItemModalState extends State<CreateShopItemModal> {
                               isImageSelectorVisible = false;
                             }),
                             child: Image.network(
-                              "https://fiestapp-s3.mizury.fr/fiestapp/asset/$imageName.webp",
+                              "$S3_enpoint/asset/$imageName.webp",
                               height: 48,
                             ),
                           ),

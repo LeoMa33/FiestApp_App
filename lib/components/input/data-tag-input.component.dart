@@ -54,9 +54,7 @@ class DataTagInput extends ConsumerWidget {
         boxShadow: [
           BoxShadow(
             color: const Color(0xffE15B42).withValues(alpha: 0.04),
-            // #E15B42 avec 4% d'opacité
-            offset: Offset(0, 4),
-            // X: 0, Y: 4
+            offset: const Offset(0, 4),
             blurRadius: 4,
             spreadRadius: 0,
           ),
@@ -109,41 +107,60 @@ class DataTagInput extends ConsumerWidget {
               size: imageSize,
             );
           },
-          loadingBuilder: (context, child, loadingProgress) {
-            if (loadingProgress == null) return child;
-            return SizedBox(
-              width: imageSize,
-              height: imageSize,
-              child: Center(
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  value: loadingProgress.expectedTotalBytes != null
-                      ? loadingProgress.cumulativeBytesLoaded /
-                            loadingProgress.expectedTotalBytes!
-                      : null,
-                ),
-              ),
-            );
-          },
         ),
       );
-    } else {
-      return FaIcon(
-        FontAwesomeIcons.image,
-        color: Colors.grey,
-        size: imageSize,
-      );
     }
+    return FaIcon(FontAwesomeIcons.image, color: Colors.grey, size: imageSize);
   }
 
   Widget _buildInputByType(BuildContext context) {
     switch (inputType) {
+      case InputType.date:
+        return TextFormField(
+          controller: controller,
+          readOnly: true,
+          enabled: enabled,
+          onTap: enabled ? () => _selectDate(context) : null,
+          decoration: InputDecoration.collapsed(
+            hintText: placeholder,
+            hintStyle: TextStyle(color: Colors.grey.shade400),
+          ),
+          style: const TextStyle(
+            color: Colors.black,
+            fontSize: 15,
+            fontWeight: FontWeight.bold,
+          ),
+        );
+
+      case InputType.time:
+        return TextFormField(
+          controller: controller,
+          readOnly: true,
+          enabled: enabled,
+          onTap: enabled ? () => _selectTime(context) : null,
+          decoration: InputDecoration.collapsed(
+            hintText: placeholder,
+            hintStyle: TextStyle(color: Colors.grey.shade400),
+          ),
+          style: const TextStyle(
+            color: Colors.black,
+            fontSize: 15,
+            fontWeight: FontWeight.bold,
+          ),
+        );
+
+      case InputType.number:
       case InputType.text:
         return TextField(
           controller: controller,
           enabled: enabled,
           maxLines: maxLines,
-          keyboardType: TextInputType.text,
+          keyboardType: inputType == InputType.number
+              ? const TextInputType.numberWithOptions(
+                  decimal: false,
+                  signed: false,
+                )
+              : TextInputType.text,
           onChanged: onChanged,
           style: const TextStyle(
             color: Colors.black,
@@ -159,96 +176,6 @@ class DataTagInput extends ConsumerWidget {
           ),
         );
 
-      case InputType.number:
-        return TextField(
-          controller: controller,
-          enabled: enabled,
-          keyboardType: TextInputType.numberWithOptions(
-            decimal: false,
-            signed: false,
-          ),
-          onChanged: onChanged,
-          style: const TextStyle(
-            color: Colors.black,
-            fontSize: 15,
-            fontWeight: FontWeight.bold,
-          ),
-          decoration: InputDecoration.collapsed(
-            hintText: placeholder,
-            hintStyle: TextStyle(
-              color: Colors.grey.shade400,
-              fontWeight: FontWeight.normal,
-            ),
-          ),
-        );
-
-      case InputType.date:
-        return GestureDetector(
-          onTap: enabled ? () => _selectDate(context) : null,
-          child: Container(
-            width: double.infinity,
-            child: TextFormField(
-              controller: controller,
-              readOnly: true,
-              onTap: () async {
-                DateTime now = DateTime.now();
-                DateTime? pickedDate = await showDatePicker(
-                  locale: Locale('fr', 'FR'),
-                  context: context,
-                  initialDate: now,
-                  firstDate: now,
-                  lastDate: now.add(const Duration(days: 365 * 5)),
-                );
-                controller.value = TextEditingValue(
-                  text: pickedDate != null
-                      ? DateFormat(dateFormat).format(pickedDate)
-                      : '',
-                );
-              },
-              decoration: InputDecoration(
-                border: InputBorder.none,
-                // Supprime la bordure
-                enabledBorder: InputBorder.none,
-                focusedBorder: InputBorder.none,
-                hintText: placeholder,
-                contentPadding: EdgeInsets.zero,
-              ),
-            ),
-          ),
-        );
-
-      case InputType.time:
-        return GestureDetector(
-          onTap: enabled ? () => _selectDate(context) : null,
-          child: Container(
-            width: double.infinity,
-            child: TextFormField(
-              controller: controller,
-              readOnly: true,
-              onTap: () async {
-                TimeOfDay? pickedDate = await showTimePicker(
-                  context: context,
-                  initialTime: TimeOfDay.now(),
-                );
-
-                controller.value = TextEditingValue(
-                  text: pickedDate != null
-                      ? DateFormat(timeFormat).format(
-                          DateTime(0, 0, 0, pickedDate.hour, pickedDate.minute),
-                        )
-                      : '',
-                );
-              },
-              decoration: InputDecoration(
-                border: InputBorder.none,
-                // Supprime la bordure
-                enabledBorder: InputBorder.none,
-                focusedBorder: InputBorder.none,
-                hintText: placeholder,
-              ),
-            ),
-          ),
-        );
       case InputType.counter:
         return Row(
           mainAxisSize: MainAxisSize.min,
@@ -257,11 +184,12 @@ class DataTagInput extends ConsumerWidget {
               onTap: () {
                 final currentValue = int.tryParse(controller.text) ?? 0;
                 if (currentValue > 0) {
-                  controller.text = (currentValue - 1).toString();
-                  if (onChanged != null) onChanged!(controller.text);
+                  final newValue = (currentValue - 1).toString();
+                  controller.text = newValue;
+                  onChanged?.call(newValue);
                 }
               },
-              child: FaIcon(
+              child: const FaIcon(
                 FontAwesomeIcons.minus,
                 color: Color(0xffE15B42),
                 size: 18,
@@ -273,32 +201,24 @@ class DataTagInput extends ConsumerWidget {
                 textAlign: TextAlign.center,
                 controller: controller,
                 enabled: enabled,
-                keyboardType: TextInputType.numberWithOptions(
-                  decimal: false,
-                  signed: false,
-                ),
+                keyboardType: const TextInputType.numberWithOptions(),
                 onChanged: onChanged,
                 style: const TextStyle(
                   color: Colors.black,
                   fontSize: 15,
                   fontWeight: FontWeight.bold,
                 ),
-                decoration: InputDecoration.collapsed(
-                  hintText: placeholder,
-                  hintStyle: TextStyle(
-                    color: Colors.grey.shade400,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+                decoration: InputDecoration.collapsed(hintText: placeholder),
               ),
             ),
             GestureDetector(
               onTap: () {
                 final currentValue = int.tryParse(controller.text) ?? 0;
-                controller.text = (currentValue + 1).toString();
-                if (onChanged != null) onChanged!(controller.text);
+                final newValue = (currentValue + 1).toString();
+                controller.text = newValue;
+                onChanged?.call(newValue);
               },
-              child: FaIcon(
+              child: const FaIcon(
                 FontAwesomeIcons.plus,
                 color: Color(0xffE15B42),
                 size: 18,
@@ -310,13 +230,12 @@ class DataTagInput extends ConsumerWidget {
   }
 
   Future<void> _selectDate(BuildContext context) async {
-    final DateTime initialDate = _parseDate(controller.text) ?? DateTime.now();
-
+    final DateTime now = DateTime.now();
     final DateTime? pickedDate = await showDatePicker(
       context: context,
-      initialDate: initialDate,
-      firstDate: firstDate ?? DateTime(1900),
-      lastDate: lastDate ?? DateTime(2100),
+      initialDate: _parseDate(controller.text) ?? now,
+      firstDate: firstDate ?? now,
+      lastDate: lastDate ?? now.add(const Duration(days: 365 * 5)),
       locale: const Locale('fr', 'FR'),
       builder: (context, child) {
         return Theme(
@@ -337,6 +256,37 @@ class DataTagInput extends ConsumerWidget {
     }
   }
 
+  Future<void> _selectTime(BuildContext context) async {
+    final TimeOfDay? pickedTime = await showTimePicker(
+      context: context,
+      initialTime: _parseTime(controller.text) ?? TimeOfDay.now(),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: Theme.of(
+              context,
+            ).colorScheme.copyWith(primary: const Color(0xffE15B42)),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (pickedTime != null) {
+      final now = DateTime.now();
+      final dt = DateTime(
+        now.year,
+        now.month,
+        now.day,
+        pickedTime.hour,
+        pickedTime.minute,
+      );
+      final formattedTime = DateFormat(timeFormat).format(dt);
+      controller.text = formattedTime;
+      onChanged?.call(formattedTime);
+    }
+  }
+
   DateTime? _parseDate(String dateString) {
     if (dateString.isEmpty) return null;
     try {
@@ -345,38 +295,14 @@ class DataTagInput extends ConsumerWidget {
       return null;
     }
   }
-}
 
-// Extension utile pour la validation
-extension DataTagInputValidator on DataTagInput {
-  static String? validateRequired(String? value, String fieldName) {
-    if (value == null || value.trim().isEmpty) {
-      return '$fieldName est requis';
+  TimeOfDay? _parseTime(String timeString) {
+    if (timeString.isEmpty) return null;
+    try {
+      final dt = DateFormat(timeFormat).parse(timeString);
+      return TimeOfDay.fromDateTime(dt);
+    } catch (e) {
+      return null;
     }
-    return null;
-  }
-
-  static String? validateEmail(String? value) {
-    if (value == null || value.isEmpty) return null;
-    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-    if (!emailRegex.hasMatch(value)) {
-      return 'Format d\'email invalide';
-    }
-    return null;
-  }
-
-  static String? validateNumber(String? value, {double? min, double? max}) {
-    if (value == null || value.isEmpty) return null;
-    final number = double.tryParse(value);
-    if (number == null) {
-      return 'Veuillez entrer un nombre valide';
-    }
-    if (min != null && number < min) {
-      return 'La valeur doit être supérieure ou égale à $min';
-    }
-    if (max != null && number > max) {
-      return 'La valeur doit être inférieure ou égale à $max';
-    }
-    return null;
   }
 }

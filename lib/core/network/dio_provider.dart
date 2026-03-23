@@ -27,6 +27,7 @@ Dio dio(DioRef ref) {
       onError: (error, handler) async {
         print(error.response);
 
+        print(error.requestOptions.path);
         if (error.response?.statusCode != 401 ||
             error.requestOptions.path.contains('/auth/login') ||
             error.requestOptions.path.contains('/auth/refresh')) {
@@ -38,6 +39,7 @@ Dio dio(DioRef ref) {
           final refreshToken = ref.read(tokenProvider);
 
           if (refreshToken == null) {
+            print('No refresh token');
             return handler.next(error);
           }
 
@@ -60,7 +62,10 @@ Dio dio(DioRef ref) {
 
             return handler.resolve(response);
           }
-        } catch (_) {
+        } catch (e) {
+          print('here');
+          print(e);
+
           return handler.next(error);
         }
 

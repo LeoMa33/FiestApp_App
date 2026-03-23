@@ -45,9 +45,15 @@ class NextEventCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     UserAvartLabel(user: event.creator),
-                    Text(
-                      '📍 ${event.address}',
-                      style: TextStyle(fontSize: 12, color: Colors.black),
+                    Expanded(
+                      child: Text(
+                        '📍 ${event.address}',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.black,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
                     ),
                   ],
                 ),

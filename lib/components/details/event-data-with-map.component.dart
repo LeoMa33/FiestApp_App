@@ -3,6 +3,7 @@ import 'package:fiestapp/components/details/event-data.component.dart';
 import 'package:fiestapp/constant.dart';
 import 'package:fiestapp/core/utils/image_converter.dart';
 import 'package:fiestapp/feature/event/data/dto/event_dto.dart';
+import 'package:fiestapp/feature/event/data/dto/event_light_dto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

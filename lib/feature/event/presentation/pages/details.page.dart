@@ -2,10 +2,9 @@ import 'package:fiestapp/components/details/details-header.component.dart';
 import 'package:fiestapp/components/details/event-data-with-map.component.dart';
 import 'package:fiestapp/components/organisation/organisation-bloc.component.dart';
 import 'package:fiestapp/core/common_widgets/page_switcher/page-switcher.component.dart';
-import 'package:fiestapp/feature/estimation/data/dto/estimation_dto.dart';
-import 'package:fiestapp/feature/event/data/dto/event_dto.dart';
-import 'package:fiestapp/feature/event/data/dto/location_dto.dart';
-import 'package:fiestapp/feature/user/data/dto/user_light_dto.dart';
+import 'package:fiestapp/core/network/client/api_client_provider.dart';
+import 'package:fiestapp/feature/event/data/event_service.dart';
+import 'package:fiestapp/feature/event/data/provider/event_details_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -22,18 +21,48 @@ class DetailState extends ConsumerState<Details> {
   bool isMapExpanded = false;
   int currentPage = 0;
 
-  // TODO Get l'event par son id (widget.id)
-  final EventDto mockEvent = EventDto(
-    name: '',
-    id: '',
-    description: '',
-    date: DateTime.now(),
-    address: '',
-    location: LocationDto(lat: 0, long: 0),
-    creator: UserLightDto(id: '', name: ''),
-    participants: [],
-    estimation: EstimationDto(beer: 3, pizza: 3, softDrink: 3),
-  );
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadInitialData();
+    });
+  }
+
+  Future<void> _loadInitialData() async {
+    final notifier = ref.read(eventDetailsProvider.notifier);
+    final apiClient = ref.read(apiClientProvider);
+
+    notifier.setLoading(true);
+    try {
+      final event = await EventService.getById(
+        apiClient: apiClient,
+        id: widget.id,
+      );
+      notifier.setEvent(event);
+    } catch (e) {
+      notifier.setLoading(false);
+    }
+  }
+
+  Future<void> _loadOrganisationData() async {
+    final state = ref.read(eventDetailsProvider);
+    if (state.prunes != null) return;
+
+    final notifier = ref.read(eventDetailsProvider.notifier);
+    final apiClient = ref.read(apiClientProvider);
+
+    notifier.setLoading(true);
+    try {
+      final prunes = await EventService.getPrunes(
+        apiClient: apiClient,
+        id: widget.id,
+      );
+      notifier.setPrunes(prunes);
+    } catch (e) {
+      notifier.setLoading(false);
+    }
+  }
 
   void expandMap() {
     setState(() {
@@ -45,15 +74,23 @@ class DetailState extends ConsumerState<Details> {
     setState(() {
       currentPage = index;
     });
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
+    if (index == 1) {
+      _loadOrganisationData();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final state = ref.watch(eventDetailsProvider);
+
+    if (state.isLoading && state.event == null) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    if (state.event == null) {
+      return const Scaffold(body: Center(child: Text("Évènement non trouvé")));
+    }
+
     return SafeArea(
       top: false,
       child: Scaffold(
@@ -87,7 +124,7 @@ class DetailState extends ConsumerState<Details> {
                       : EventDetailsWithMap(
                           isMapExpanded: isMapExpanded,
                           onExpandToggle: expandMap,
-                          event: mockEvent,
+                          event: state.event!,
                         ),
                 ),
               ),
