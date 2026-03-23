@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:fiestapp/constant.dart';
 import 'package:fiestapp/core/network/client/api_client.dart';
 import 'package:fiestapp/feature/auth/data/dto/auth_dto.dart';
+import 'package:fiestapp/feature/user/data/dto/user_dto.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class AuthService {
@@ -39,12 +40,12 @@ class AuthService {
     }
   }
 
-  static getMe({
+  static Future<UserDto> getMe({
     required ApiClient apiClient,
     required FlutterSecureStorage storage,
   }) async {
     try {
-      await apiClient.users.getMe();
+      return await apiClient.users.getMe();
     } on DioException catch (e) {
       print(e);
       rethrow;
@@ -63,7 +64,7 @@ class AuthService {
         options: Options(headers: {'Authorization': 'Bearer $refreshToken'}),
       );
 
-      final String newToken = response.data['accessToken'];
+      final String newToken = response.data['token'];
       final String newRefreshToken = response.data['refreshToken'];
 
       await storage.write(key: 'jwt_token', value: newToken);

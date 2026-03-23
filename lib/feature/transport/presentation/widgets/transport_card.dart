@@ -1,27 +1,22 @@
 import 'package:fiestapp/components/button/profil-image-button.component.dart';
 import 'package:fiestapp/core/common_widgets/button/button.component.dart';
-import 'package:fiestapp/enum.dart';
-import 'package:fiestapp/feature/estimation/data/dto/estimation_dto.dart';
-import 'package:fiestapp/feature/event/data/dto/event_dto.dart';
-import 'package:fiestapp/feature/event/data/dto/location_dto.dart';
-import 'package:fiestapp/feature/user/data/dto/user_dto.dart';
-import 'package:fiestapp/feature/user/data/dto/user_light_dto.dart';
-import 'package:fiestapp/feature/user/data/provider/user_state.dart';
+import 'package:fiestapp/core/network/s3_service.dart';
+import 'package:fiestapp/feature/transport/data/dto/transport_dto.dart';
 import 'package:fiestapp/feature/user/presentation/widgets/external/avatar_group.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-class WhoDriveCard extends ConsumerStatefulWidget {
-  const WhoDriveCard({super.key, required this.type});
+class TransportCard extends ConsumerStatefulWidget {
+  const TransportCard({super.key, required this.transport});
 
-  final WhoCardType type;
+  final TransportDto transport;
 
   @override
-  ConsumerState<WhoDriveCard> createState() => _WhoDriveCardState();
+  ConsumerState<TransportCard> createState() => _TransportCardState();
 }
 
-class _WhoDriveCardState extends ConsumerState<WhoDriveCard>
+class _TransportCardState extends ConsumerState<TransportCard>
     with SingleTickerProviderStateMixin {
   bool _isExpanded = false;
 
@@ -31,32 +26,8 @@ class _WhoDriveCardState extends ConsumerState<WhoDriveCard>
     });
   }
 
-  String get _emoji {
-    switch (widget.type) {
-      case WhoCardType.drive:
-        return '🚗';
-      case WhoCardType.sleep:
-        return '🛏️';
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    final currentUser = ref.read(userSessionProvider).user;
-
-    // Mock de l'event
-    final EventDto mockEvent = EventDto(
-      name: '',
-      id: '',
-      description: '',
-      date: DateTime.now(),
-      address: '',
-      location: LocationDto(lat: 0, long: 0),
-      creator: UserLightDto(id: '', name: ''),
-      participants: [],
-      estimation: EstimationDto(beer: 3, pizza: 3, softDrink: 3),
-    );
-
     return GestureDetector(
       onTap: toggleExpand,
       child: AnimatedSize(
@@ -77,29 +48,28 @@ class _WhoDriveCardState extends ConsumerState<WhoDriveCard>
             ],
           ),
           child: _isExpanded
-              ? _buildExpandedContent(currentUser!, mockEvent)
-              : _buildCollapsedContent(currentUser!, mockEvent),
+              ? _buildExpandedContent(widget.transport)
+              : _buildCollapsedContent(widget.transport),
         ),
       ),
     );
   }
 
-  Widget _buildCollapsedContent(UserDto currentUser, EventDto event) {
+  Widget _buildCollapsedContent(TransportDto transport) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Row(
           children: [
             ProfilImageButton(
-              imagePath:
-                  'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fpm1.narvii.com%2F6479%2Fd14cc25834ff36a45a29ecd0e9c7ec92021c96fd_hq.jpg&f=1&nofb=1&ipt=126ff8a7eaf3122eda206063efe488f8fd16990c30d9b4953ab709bbd47962a0',
+              imagePath: S3Service.getUserImage(transport.driver.imageUrl),
             ),
             const SizedBox(width: 12),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  currentUser.name,
+                  transport.driver.name,
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -115,7 +85,8 @@ class _WhoDriveCardState extends ConsumerState<WhoDriveCard>
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      event.address,
+                      // transport.address ??
+                      "Adresse non renseignée", // TODO Ajouter l'adresse de départ
                       style: const TextStyle(fontSize: 12, color: Colors.grey),
                     ),
                   ],
@@ -131,7 +102,7 @@ class _WhoDriveCardState extends ConsumerState<WhoDriveCard>
             borderRadius: BorderRadius.circular(20),
           ),
           child: Text(
-            "$_emoji 1/5",
+            "🚗 ${transport.passengers.length}/${transport.count}",
             style: const TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w600,
@@ -143,20 +114,20 @@ class _WhoDriveCardState extends ConsumerState<WhoDriveCard>
     );
   }
 
-  Widget _buildExpandedContent(UserDto currentUser, EventDto event) {
+  Widget _buildExpandedContent(TransportDto transport) {
     final String usersLengthText =
-        "${event.participants.length} participant${event.participants.length <= 1 ? '' : 's'}";
+        "${transport.passengers.length} participant${transport.passengers.length <= 1 ? '' : 's'}";
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildCollapsedContent(currentUser, event),
+        _buildCollapsedContent(transport),
 
         const SizedBox(height: 20),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             AvatarGroup(
-              users: event.participants,
+              users: transport.passengers,
               haveBackground: false,
               textColor: Colors.black,
               text: usersLengthText,
@@ -165,7 +136,6 @@ class _WhoDriveCardState extends ConsumerState<WhoDriveCard>
               icon: FontAwesomeIcons.arrowRight,
               label: "Valider",
               onPressed: () {
-                // simple action si besoin
                 toggleExpand();
               },
             ),

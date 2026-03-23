@@ -1,4 +1,3 @@
-import 'package:fiestapp/feature/estimation/data/dto/estimation_dto.dart';
 import 'package:fiestapp/feature/user/data/dto/user_light_dto.dart';
 
 class EventLightDto {
@@ -9,7 +8,6 @@ class EventLightDto {
   final String? imageUrl;
   final UserLightDto creator;
   final List<UserLightDto> participants;
-  final EstimationDto estimation;
 
   EventLightDto({
     required this.id,
@@ -19,7 +17,6 @@ class EventLightDto {
     this.imageUrl,
     required this.creator,
     required this.participants,
-    required this.estimation,
   });
 
   factory EventLightDto.fromJson(Map<String, dynamic> json) {
@@ -33,9 +30,6 @@ class EventLightDto {
       participants: (json['participants'] as List<dynamic>)
           .map((e) => UserLightDto.fromJson(e as Map<String, dynamic>))
           .toList(),
-      estimation: EstimationDto.fromJson(
-        json['estimation'] as Map<String, dynamic>,
-      ),
     );
   }
 
@@ -48,7 +42,6 @@ class EventLightDto {
       'imageUrl': imageUrl,
       'creator': creator.toJson(),
       'participants': participants.map((e) => e.toJson()).toList(),
-      'estimation': estimation.toJson(),
     };
   }
 }

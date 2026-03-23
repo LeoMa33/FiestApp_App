@@ -1,17 +1,25 @@
 import 'package:fiestapp/components/input/data-tag-input.component.dart';
+import 'package:fiestapp/constant.dart';
 import 'package:fiestapp/core/common_widgets/button/button.component.dart';
+import 'package:fiestapp/core/network/client/api_client_provider.dart';
 import 'package:fiestapp/enum.dart';
+import 'package:fiestapp/feature/event/data/provider/event_details_state.dart';
+import 'package:fiestapp/feature/shopping/data/dto/shopping_item_create_dto.dart';
+import 'package:fiestapp/feature/shopping/data/shopping_item_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
 
-class CreateShopItemModal extends StatefulWidget {
+class CreateShopItemModal extends ConsumerStatefulWidget {
   const CreateShopItemModal({super.key});
 
   @override
-  State<CreateShopItemModal> createState() => _CreateShopItemModalState();
+  ConsumerState<CreateShopItemModal> createState() =>
+      _CreateShopItemModalState();
 }
 
-class _CreateShopItemModalState extends State<CreateShopItemModal> {
+class _CreateShopItemModalState extends ConsumerState<CreateShopItemModal> {
   final TextEditingController _quantityController = TextEditingController(
     text: '0',
   );
@@ -19,6 +27,7 @@ class _CreateShopItemModalState extends State<CreateShopItemModal> {
 
   late String selectedImage;
   late bool isImageSelectorVisible = false;
+  bool isLoading = false;
 
   final List<String> imagesName = [
     "assiette",
@@ -69,6 +78,46 @@ class _CreateShopItemModalState extends State<CreateShopItemModal> {
     selectedImage = "pizza";
   }
 
+  Future<void> _submit() async {
+    final event = ref.read(eventDetailsProvider).event;
+    if (event == null) return;
+
+    if (_nameController.text.isEmpty || _quantityController.text == '0') {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Veuillez remplir tous les champs")),
+      );
+      return;
+    }
+
+    setState(() => isLoading = true);
+
+    try {
+      final apiClient = ref.read(apiClientProvider);
+      final dto = ShoppingItemCreateDto(
+        name: _nameController.text,
+        quantity: int.parse(_quantityController.text),
+        image: "$S3_enpoint/asset/$selectedImage.webp",
+        eventId: event.id,
+      );
+
+      await ShoppingItemService.create(apiClient: apiClient, dto: dto);
+
+      if (mounted) {
+        context.pop();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Une erreur est survenue")),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => isLoading = false);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return ConstrainedBox(
@@ -83,7 +132,7 @@ class _CreateShopItemModalState extends State<CreateShopItemModal> {
           crossAxisAlignment: CrossAxisAlignment.start,
           spacing: 20,
           children: [
-            Center(
+            const Center(
               child: Text(
                 "Ajout d'un article",
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
@@ -98,7 +147,7 @@ class _CreateShopItemModalState extends State<CreateShopItemModal> {
                         isImageSelectorVisible = !isImageSelectorVisible;
                       }),
                       child: Image.network(
-                        "https://fiestapp-s3.mizury.fr/fiestapp/asset/$selectedImage.webp",
+                        "$S3_enpoint/asset/$selectedImage.webp",
                         height: 80,
                       ),
                     ),
@@ -117,6 +166,7 @@ class _CreateShopItemModalState extends State<CreateShopItemModal> {
                     ),
                   ],
                 ),
+                const SizedBox(width: 20),
                 Expanded(
                   child: Column(
                     spacing: 20,
@@ -153,7 +203,7 @@ class _CreateShopItemModalState extends State<CreateShopItemModal> {
                               isImageSelectorVisible = false;
                             }),
                             child: Image.network(
-                              "https://fiestapp-s3.mizury.fr/fiestapp/asset/$imageName.webp",
+                              "$S3_enpoint/asset/$imageName.webp",
                               height: 48,
                             ),
                           ),
@@ -164,11 +214,14 @@ class _CreateShopItemModalState extends State<CreateShopItemModal> {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                CustomButton(
-                  label: 'Ajouter',
-                  icon: FontAwesomeIcons.arrowRight,
-                  onPressed: () {},
-                ),
+                if (isLoading)
+                  const CircularProgressIndicator()
+                else
+                  CustomButton(
+                    label: 'Ajouter',
+                    icon: FontAwesomeIcons.arrowRight,
+                    onPressed: _submit,
+                  ),
               ],
             ),
           ],

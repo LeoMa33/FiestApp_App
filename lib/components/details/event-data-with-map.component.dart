@@ -140,7 +140,7 @@ class _EventDetailsWithMapState extends ConsumerState<EventDetailsWithMap> {
             decoration: BoxDecoration(borderRadius: BorderRadius.circular(40)),
             width: double.infinity,
             height: widget.isMapExpanded
-                ? MediaQuery.of(context).size.height * 0.77
+                ? MediaQuery.of(context).size.height * 0.92
                 : 200,
             child: Stack(
               children: [
@@ -154,7 +154,9 @@ class _EventDetailsWithMapState extends ConsumerState<EventDetailsWithMap> {
                   bottom: 10,
                   right: 10,
                   child: CustomIconButton(
-                    icon: FontAwesomeIcons.upRightAndDownLeftFromCenter,
+                    icon: !widget.isMapExpanded
+                        ? FontAwesomeIcons.upRightAndDownLeftFromCenter
+                        : FontAwesomeIcons.downLeftAndUpRightToCenter,
                     backgroundColor: Colors.black.withOpacity(0.2),
                     iconColor: Colors.white,
                     onClick: widget.onExpandToggle,

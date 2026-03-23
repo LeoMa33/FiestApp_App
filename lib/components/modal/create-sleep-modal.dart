@@ -1,23 +1,30 @@
 import 'package:fiestapp/components/input/data-tag-input.component.dart';
 import 'package:fiestapp/core/common_widgets/button/button.component.dart';
+import 'package:fiestapp/core/network/client/api_client_provider.dart';
 import 'package:fiestapp/enum.dart';
+import 'package:fiestapp/feature/accomodation/data/accomodation_service.dart';
+import 'package:fiestapp/feature/accomodation/data/dto/accomodation_create_dto.dart';
+import 'package:fiestapp/feature/event/data/provider/event_details_state.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
 
-class CreateSleepModal extends StatefulWidget {
+class CreateSleepModal extends ConsumerStatefulWidget {
   const CreateSleepModal({super.key});
 
   @override
-  State<CreateSleepModal> createState() => _CreateSleepModalState();
+  ConsumerState<CreateSleepModal> createState() => _CreateSleepModalState();
 }
 
-class _CreateSleepModalState extends State<CreateSleepModal> {
+class _CreateSleepModalState extends ConsumerState<CreateSleepModal> {
   final TextEditingController _streetController = TextEditingController();
   final TextEditingController _cityController = TextEditingController();
   final TextEditingController _postalCodeController = TextEditingController();
   final TextEditingController _placesController = TextEditingController(
     text: '0',
   );
+  bool isLoading = false;
 
   @override
   void dispose() {
@@ -26,6 +33,48 @@ class _CreateSleepModalState extends State<CreateSleepModal> {
     _postalCodeController.dispose();
     _placesController.dispose();
     super.dispose();
+  }
+
+  Future<void> _submit() async {
+    final event = ref.read(eventDetailsProvider).event;
+    if (event == null) return;
+
+    if (_streetController.text.isEmpty ||
+        _cityController.text.isEmpty ||
+        _placesController.text == '0') {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Veuillez remplir tous les champs")),
+      );
+      return;
+    }
+
+    setState(() => isLoading = true);
+
+    try {
+      final apiClient = ref.read(apiClientProvider);
+      final dto = AccommodationCreateDto(
+        count: int.parse(_placesController.text),
+        address:
+            "${_streetController.text}, ${_postalCodeController.text} ${_cityController.text}",
+        eventId: event.id,
+      );
+
+      await AccomodationService.create(apiClient: apiClient, dto: dto);
+
+      if (mounted) {
+        context.pop();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Une erreur est survenue")),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => isLoading = false);
+      }
+    }
   }
 
   @override
@@ -42,7 +91,7 @@ class _CreateSleepModalState extends State<CreateSleepModal> {
           crossAxisAlignment: CrossAxisAlignment.start,
           spacing: 20,
           children: [
-            Center(
+            const Center(
               child: Text(
                 "Ajout d'un hébergement",
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
@@ -84,22 +133,14 @@ class _CreateSleepModalState extends State<CreateSleepModal> {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                CustomButton(
-                  label: 'Ajouter',
-                  icon: FontAwesomeIcons.arrowRight,
-                  onPressed: () {
-                    // Exemple d'accès aux valeurs :
-                    final rue = _streetController.text;
-                    final ville = _cityController.text;
-                    final codePostal = _postalCodeController.text;
-                    final places = int.tryParse(_placesController.text) ?? 0;
-
-                    // TODO : soumettre les données
-                    print(
-                      "Rue: $rue, Ville: $ville, CP: $codePostal, Places: $places",
-                    );
-                  },
-                ),
+                if (isLoading)
+                  const CircularProgressIndicator()
+                else
+                  CustomButton(
+                    label: 'Ajouter',
+                    icon: FontAwesomeIcons.arrowRight,
+                    onPressed: _submit,
+                  ),
               ],
             ),
           ],

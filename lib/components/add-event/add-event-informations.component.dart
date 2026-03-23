@@ -1,5 +1,6 @@
 import 'package:fiestapp/components/input/data-tag-input.component.dart';
 import 'package:fiestapp/enum.dart';
+import 'package:fiestapp/feature/event/data/provider/event_create_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -12,21 +13,19 @@ class AddEvenInformations extends ConsumerStatefulWidget {
 }
 
 class _AddEvenInformationsState extends ConsumerState<AddEvenInformations> {
-  // Déclaration des controllers
   late TextEditingController _titleController;
   late TextEditingController _descriptionController;
 
   @override
   void initState() {
     super.initState();
-    // Initialisation des controllers
-    _titleController = TextEditingController();
-    _descriptionController = TextEditingController();
+    final state = ref.read(eventCreateProvider);
+    _titleController = TextEditingController(text: state.name);
+    _descriptionController = TextEditingController(text: state.description);
   }
 
   @override
   void dispose() {
-    // Libération de la mémoire
     _titleController.dispose();
     _descriptionController.dispose();
     super.dispose();
@@ -43,7 +42,8 @@ class _AddEvenInformationsState extends ConsumerState<AddEvenInformations> {
           placeholder: "Entrez le titre",
           inputType: InputType.text,
           controller: _titleController,
-          onChanged: (value) => print("Titre: $value"),
+          onChanged: (value) =>
+              ref.read(eventCreateProvider.notifier).updateName(value),
         ),
         DataTagInput(
           title: "Description de l'événement",
@@ -51,7 +51,8 @@ class _AddEvenInformationsState extends ConsumerState<AddEvenInformations> {
           placeholder: "Entrez la description",
           inputType: InputType.text,
           controller: _descriptionController,
-          onChanged: (value) => print("Description: $value"),
+          onChanged: (value) =>
+              ref.read(eventCreateProvider.notifier).updateDescription(value),
         ),
       ],
     );

@@ -7,8 +7,6 @@ import 'package:fiestapp/feature/user/data/provider/user_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../constant.dart';
-
 class ProfilHeader extends ConsumerWidget {
   const ProfilHeader({super.key, this.allowEdit = true});
 
@@ -31,7 +29,9 @@ class ProfilHeader extends ConsumerWidget {
             child: Container(
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: CachedNetworkImageProvider(AppImage.defaultEventImage),
+                  image: CachedNetworkImageProvider(
+                    S3Service.getUserImage(currentUser?.imageUrl),
+                  ),
                   fit: BoxFit.cover,
                 ),
               ),

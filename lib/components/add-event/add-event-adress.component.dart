@@ -1,5 +1,6 @@
 import 'package:fiestapp/components/input/data-tag-input.component.dart';
 import 'package:fiestapp/enum.dart';
+import 'package:fiestapp/feature/event/data/provider/event_create_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -11,7 +12,6 @@ class AddEventAdress extends ConsumerStatefulWidget {
 }
 
 class _AddEventAdressState extends ConsumerState<AddEventAdress> {
-  // Déclaration des controllers
   late TextEditingController _streetController;
   late TextEditingController _cityController;
   late TextEditingController _postalCodeController;
@@ -19,16 +19,10 @@ class _AddEventAdressState extends ConsumerState<AddEventAdress> {
   @override
   void initState() {
     super.initState();
-    // Initialisation des controllers
-    _streetController = TextEditingController();
-    _cityController = TextEditingController();
-    _postalCodeController = TextEditingController();
-
-    _streetController.addListener(() {});
-
-    _cityController.addListener(() {});
-
-    _postalCodeController.addListener(() {});
+    final state = ref.read(eventCreateProvider);
+    _streetController = TextEditingController(text: state.street);
+    _cityController = TextEditingController(text: state.city);
+    _postalCodeController = TextEditingController(text: state.postalCode);
   }
 
   @override
@@ -50,7 +44,8 @@ class _AddEventAdressState extends ConsumerState<AddEventAdress> {
           placeholder: "Entrez la rue de l'événement",
           inputType: InputType.text,
           controller: _streetController,
-          onChanged: (value) => print("rue: $value"),
+          onChanged: (value) =>
+              ref.read(eventCreateProvider.notifier).updateStreet(value),
         ),
         Row(
           spacing: 20,
@@ -62,7 +57,8 @@ class _AddEventAdressState extends ConsumerState<AddEventAdress> {
                 placeholder: "Entrez la ville de l'événement",
                 inputType: InputType.text,
                 controller: _cityController,
-                onChanged: (value) => print("Ville: $value"),
+                onChanged: (value) =>
+                    ref.read(eventCreateProvider.notifier).updateCity(value),
               ),
             ),
             Expanded(
@@ -73,7 +69,8 @@ class _AddEventAdressState extends ConsumerState<AddEventAdress> {
                 placeholder: "Entrez le code postal",
                 inputType: InputType.number,
                 controller: _postalCodeController,
-                onChanged: (value) => print("Code postal: $value"),
+                onChanged: (value) =>
+                    ref.read(eventCreateProvider.notifier).updatePostalCode(value),
               ),
             ),
           ],

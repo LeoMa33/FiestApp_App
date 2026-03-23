@@ -2,8 +2,12 @@ import 'package:fiestapp/components/profil/profil-events.component.dart';
 import 'package:fiestapp/components/profil/profil-header.component.dart';
 import 'package:fiestapp/components/profil/profil-informations.component.dart';
 import 'package:fiestapp/core/common_widgets/page_switcher/page-switcher.component.dart';
+import 'package:fiestapp/core/network/client/api_client_provider.dart';
 import 'package:fiestapp/feature/estimation/domain/enum/estimation_enum.dart';
 import 'package:fiestapp/feature/estimation/domain/enum/gender_enum.dart';
+import 'package:fiestapp/feature/event/data/dto/event_filter_dto.dart';
+import 'package:fiestapp/feature/event/data/event_service.dart';
+import 'package:fiestapp/feature/event/data/provider/event_list_state.dart';
 import 'package:fiestapp/feature/user/data/provider/user_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -20,15 +24,44 @@ class Profil extends ConsumerStatefulWidget {
 class ProfilState extends ConsumerState<Profil> {
   int currentPage = 0;
 
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _refreshEvents();
+    });
+  }
+
   void changePage(int index) {
     setState(() {
       currentPage = index;
     });
+    if (index == 1) {
+      _refreshEvents();
+    }
+  }
+
+  Future<void> _refreshEvents() async {
+    final currentUser = ref.read(userSessionProvider).user;
+    if (currentUser == null) return;
+
+    ref.read(eventListProvider.notifier).setLoading(true);
+    try {
+      final apiClient = ref.read(apiClientProvider);
+      final events = await EventService.getAll(
+        apiClient: apiClient,
+        dto: EventFilterDto(organizer: currentUser.id),
+      );
+      ref.read(eventListProvider.notifier).setEvents(events);
+    } catch (e) {
+      ref.read(eventListProvider.notifier).setLoading(false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final user = ref.read(userSessionProvider).user;
+    final user = ref.watch(userSessionProvider).user;
+    final eventState = ref.watch(eventListProvider);
 
     return SafeArea(
       top: false,
@@ -88,7 +121,7 @@ class ProfilState extends ConsumerState<Profil> {
                   duration: Duration(milliseconds: 200),
                   child: currentPage == 0
                       ? ProfilInformations()
-                      : ProfilEvenements(events: []),
+                      : ProfilEvenements(events: eventState.events ?? []),
                 ),
               ),
             ),
