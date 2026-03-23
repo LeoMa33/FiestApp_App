@@ -9,12 +9,6 @@ class PollModule {
 
   PollModule(this._dio);
 
-  Future<List<PollDto>> getAll() async {
-    final response = await _dio.get(baseRoute);
-    final List<dynamic> data = response.data;
-    return data.map((json) => PollDto.fromJson(json)).toList();
-  }
-
   Future<PollDto> getById(String id) async {
     final response = await _dio.get('$baseRoute/$id');
     return PollDto.fromJson(response.data);
@@ -25,8 +19,8 @@ class PollModule {
     return PollDto.fromJson(response.data);
   }
 
-  Future<void> vote(VotesDto dto) async {
-    await _dio.post('$baseRoute/votes', data: dto.toJson());
+  Future<void> vote(VotesDto dto, String pollId) async {
+    await _dio.post('$baseRoute/$pollId/votes', data: dto.toJson());
   }
 
   Future<void> delete(String id) async {

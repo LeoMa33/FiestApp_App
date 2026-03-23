@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fiestapp/components/button/icon-button.component.dart';
 import 'package:fiestapp/components/modal/invitation-modal.dart';
 import 'package:fiestapp/constant.dart';
+import 'package:fiestapp/core/routing/route_enum.dart';
 import 'package:fiestapp/feature/event/data/provider/event_details_state.dart';
 import 'package:fiestapp/feature/user/presentation/widgets/external/avatar_group.dart';
 import 'package:flutter/material.dart';
@@ -39,7 +40,8 @@ class DetailsHeader extends ConsumerWidget {
         bottomRight: Radius.circular(40),
       ),
       child: CachedNetworkImage(
-        imageUrl: event.imageUrl ??
+        imageUrl:
+            event.imageUrl ??
             'https://tripxl.com/blog/wp-content/uploads/2024/09/Subsix-Underwater-Nightclub-Niyama-Private-Islands.jpg',
         width: double.infinity,
         height: height,
@@ -93,7 +95,7 @@ class DetailsHeader extends ConsumerWidget {
                 icon: FontAwesomeIcons.arrowLeft,
                 backgroundColor: Colors.black.withOpacity(0.2),
                 iconColor: Colors.white,
-                onClick: () => context.pop(),
+                onClick: () => context.goNamed(AppRoute.home.name),
               ),
               Row(
                 children: [

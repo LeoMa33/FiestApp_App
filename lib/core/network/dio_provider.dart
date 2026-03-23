@@ -36,7 +36,7 @@ Dio dio(DioRef ref) {
 
         try {
           final storage = FlutterSecureStorage();
-          final refreshToken = ref.read(tokenProvider);
+          final refreshToken = ref.read(refreshTokenProvider);
 
           if (refreshToken == null) {
             print('No refresh token');
@@ -53,7 +53,7 @@ Dio dio(DioRef ref) {
             final newRefreshToken = await storage.read(key: 'refresh_token');
 
             ref.read(tokenProvider.notifier).state = newToken;
-            ref.read(tokenProvider.notifier).state = newRefreshToken;
+            ref.read(refreshTokenProvider.notifier).state = newRefreshToken;
 
             final options = error.requestOptions;
             options.headers['Authorization'] = 'Bearer $newToken';

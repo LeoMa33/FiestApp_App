@@ -1,10 +1,10 @@
 import 'package:fiestapp/components/details/details-header.component.dart';
 import 'package:fiestapp/components/details/event-data-with-map.component.dart';
-import 'package:fiestapp/components/organisation/organisation-bloc.component.dart';
 import 'package:fiestapp/core/common_widgets/page_switcher/page-switcher.component.dart';
 import 'package:fiestapp/core/network/client/api_client_provider.dart';
 import 'package:fiestapp/feature/event/data/event_service.dart';
 import 'package:fiestapp/feature/event/data/provider/event_details_state.dart';
+import 'package:fiestapp/feature/event/presentation/widgets/organisation/organisation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -26,6 +26,7 @@ class DetailState extends ConsumerState<Details> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadInitialData();
+      _loadOrganisationData();
     });
   }
 
@@ -74,9 +75,6 @@ class DetailState extends ConsumerState<Details> {
     setState(() {
       currentPage = index;
     });
-    if (index == 1) {
-      _loadOrganisationData();
-    }
   }
 
   @override
@@ -94,15 +92,18 @@ class DetailState extends ConsumerState<Details> {
     return SafeArea(
       top: false,
       child: Scaffold(
-        bottomNavigationBar: Padding(
-          padding: const EdgeInsets.only(bottom: 15, left: 15, right: 15),
-          child: PageSwitcher(
-            onPageChanged: changePage,
-            currentPage: currentPage,
-            firstPage: 'Informations',
-            secondPage: 'Organisation',
-          ),
-        ),
+        bottomNavigationBar: isMapExpanded
+            ? SizedBox()
+            : Padding(
+                padding: const EdgeInsets.only(bottom: 15, left: 15, right: 15),
+                child: PageSwitcher(
+                  onPageChanged: changePage,
+                  currentPage: currentPage,
+                  firstPage: 'Informations',
+                  secondPage: 'Organisation',
+                ),
+              ),
+
         backgroundColor: const Color(0xffF4F1F7),
         body: Column(
           spacing: 10,

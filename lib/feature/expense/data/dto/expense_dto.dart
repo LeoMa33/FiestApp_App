@@ -5,14 +5,12 @@ class ExpenseDto {
   final String name;
   final UserLightDto author;
   final double amount;
-  final String eventId;
 
   ExpenseDto({
     required this.id,
     required this.name,
     required this.author,
     required this.amount,
-    required this.eventId,
   });
 
   factory ExpenseDto.fromJson(Map<String, dynamic> json) {
@@ -20,8 +18,7 @@ class ExpenseDto {
       id: json['id'] as String,
       name: json['name'] as String,
       author: UserLightDto.fromJson(json['author'] as Map<String, dynamic>),
-      amount: (json['amount'] as num).toDouble(),
-      eventId: json['EventId'] as String,
+      amount: double.parse(json['amount']),
     );
   }
 
@@ -31,7 +28,6 @@ class ExpenseDto {
       'name': name,
       'author': author.toJson(),
       'amount': amount,
-      'EventId': eventId,
     };
   }
 }

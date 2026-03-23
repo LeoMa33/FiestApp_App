@@ -7,6 +7,7 @@ import 'package:fiestapp/core/network/client/api_client_provider.dart';
 import 'package:fiestapp/core/routing/route_enum.dart';
 import 'package:fiestapp/feature/event/data/dto/event_filter_dto.dart';
 import 'package:fiestapp/feature/event/data/event_service.dart';
+import 'package:fiestapp/feature/event/data/provider/event_details_state.dart';
 import 'package:fiestapp/feature/event/data/provider/event_list_state.dart';
 import 'package:fiestapp/feature/event/presentation/widgets/home/event_list/dismissible_event_list.dart';
 import 'package:fiestapp/feature/event/presentation/widgets/home/event_list/event_list.dart';
@@ -33,6 +34,7 @@ class _HomeState extends ConsumerState<Home> {
   }
 
   Future<void> _refreshEvents() async {
+    ref.read(eventDetailsProvider.notifier).clear();
     ref.read(eventListProvider.notifier).setLoading(true);
     try {
       final apiClient = ref.read(apiClientProvider);

@@ -59,13 +59,12 @@ class AuthService {
     if (refreshToken.isEmpty) return false;
 
     try {
-      print(API_BASE);
       final response = await Dio().post(
         '$API_BASE/auth/refresh',
         options: Options(headers: {'Authorization': 'Bearer $refreshToken'}),
       );
 
-      final String newToken = response.data['accessToken'];
+      final String newToken = response.data['token'];
       final String newRefreshToken = response.data['refreshToken'];
 
       await storage.write(key: 'jwt_token', value: newToken);

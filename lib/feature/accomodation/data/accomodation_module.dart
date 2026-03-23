@@ -5,7 +5,7 @@ import 'package:fiestapp/feature/accomodation/data/dto/accomodation_update_dto.d
 
 class AccomodationModule {
   final Dio _dio;
-  final String baseRoute = '/accommodation';
+  final String baseRoute = '/accomodation';
 
   AccomodationModule(this._dio);
 
