@@ -210,5 +210,4 @@ API_ENDPOINT="https://api.example.com"
 
 ___
 
-> Developed with ❤️ for the **[FiestApp](https://github.com/Bastien-DA/FiestApp.git)** ecosystem.  
-
+> Developed with ❤️ for the **[FiestApp](https://github.com/Manon-Arc/FiestApp_Api/tree/main)** ecosystem.  

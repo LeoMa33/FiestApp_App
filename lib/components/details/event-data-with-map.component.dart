@@ -1,8 +1,9 @@
 import 'package:fiestapp/components/button/icon-button.component.dart';
 import 'package:fiestapp/components/details/event-data.component.dart';
-import 'package:fiestapp/constant.dart';
+import 'package:fiestapp/core/network/s3_service.dart';
 import 'package:fiestapp/core/utils/image_converter.dart';
 import 'package:fiestapp/feature/event/data/dto/event_dto.dart';
+import 'package:fiestapp/feature/event/data/dto/prunes_dto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,12 +15,14 @@ class EventDetailsWithMap extends ConsumerStatefulWidget {
   final bool isMapExpanded;
   final VoidCallback onExpandToggle;
   final EventDto event;
+  final PrunesDto prunes;
 
   const EventDetailsWithMap({
     super.key,
     required this.isMapExpanded,
     required this.onExpandToggle,
     required this.event,
+    required this.prunes,
   });
 
   @override
@@ -64,7 +67,7 @@ class _EventDetailsWithMapState extends ConsumerState<EventDetailsWithMap> {
       final pointAnnotationManager = await mapboxMap.annotations
           .createPointAnnotationManager();
 
-      await _addMarker(pointAnnotationManager);
+      await _addMarkers(pointAnnotationManager);
 
       setState(() {
         _mapInitialized = true;
@@ -74,10 +77,11 @@ class _EventDetailsWithMapState extends ConsumerState<EventDetailsWithMap> {
     }
   }
 
-  Future<void> _addMarker(PointAnnotationManager manager) async {
+  Future<void> _addMarkers(PointAnnotationManager manager) async {
     try {
-      Uint8List customMarkerImage = await createCustomMarker(
-        '${S3_enpoint}event/event.webp',
+      // Marker pour l'événement
+      Uint8List eventMarkerImage = await createCustomMarker(
+        S3Service.getEventImage(widget.event.imageUrl),
       );
 
       await manager.create(
@@ -88,12 +92,30 @@ class _EventDetailsWithMapState extends ConsumerState<EventDetailsWithMap> {
               widget.event.location.lat,
             ),
           ),
-          image: customMarkerImage,
+          image: eventMarkerImage,
           iconSize: 1,
         ),
       );
+
+      for (final transport in widget.prunes.transports) {
+        Uint8List carMarkerImage = await createCarMarker(
+          S3Service.getUserImage(transport.driver.imageUrl),
+        );
+        await manager.create(
+          PointAnnotationOptions(
+            geometry: Point(
+              coordinates: Position(
+                transport.location.long,
+                transport.location.lat,
+              ),
+            ),
+            image: carMarkerImage,
+            iconSize: 0.23,
+          ),
+        );
+      }
     } catch (e) {
-      debugPrint('Marker creation error: $e');
+      debugPrint('Markers creation error: $e');
     }
   }
 

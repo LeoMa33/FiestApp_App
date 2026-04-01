@@ -81,7 +81,7 @@ class DetailState extends ConsumerState<Details> {
   Widget build(BuildContext context) {
     final state = ref.watch(eventDetailsProvider);
 
-    if (state.isLoading && state.event == null) {
+    if (state.isLoading && (state.event == null || state.prunes == null)) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
@@ -126,6 +126,7 @@ class DetailState extends ConsumerState<Details> {
                           isMapExpanded: isMapExpanded,
                           onExpandToggle: expandMap,
                           event: state.event!,
+                          prunes: state.prunes!,
                         ),
                 ),
               ),
