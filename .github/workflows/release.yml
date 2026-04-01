@@ -37,9 +37,12 @@ jobs:
       - name: Create .env file
         run: |
           echo "MAPBOX_TOKEN=${{ secrets.MAPBOX_TOKEN }}" >> .env
-          echo "SERVICE_ENDPOINT=${{ secrets.SERVICE_ENDPOINT }}" >> .env
           echo "S3_ENDPOINT=${{ secrets.S3_ENDPOINT }}" >> .env
           echo "API_BASE=${{ secrets.API_BASE }}" >> .env
+
+      # Étape cruciale pour corriger l'erreur "google-services.json is missing"
+      - name: Decode Google Services JSON
+        run: echo "${{ secrets.GOOGLE_SERVICES_JSON }}" | base64 --decode > android/app/google-services.json
 
       - name: Build APK & AppBundle
         run: |
@@ -47,6 +50,7 @@ jobs:
           flutter build appbundle --release --build-name=${{ steps.get_version.outputs.VERSION }} --build-number=${{ github.run_number }}
 
       - name: Create Release
+        id: create_release
         uses: softprops/action-gh-release@v2
         with:
           files: |
@@ -56,3 +60,20 @@ jobs:
           name: Release ${{ steps.get_version.outputs.VERSION }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🔔 Discord Notification
+        if: always()
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            curl -H "Content-Type: application/json" -X POST -d '{
+              "username": "Mizu Builder",
+              "avatar_url": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
+              "content": "🚀 **Fiestapp Mobile - Build Réussi !**\n\n**📱 Version :** `${{ steps.get_version.outputs.VERSION }}`\n**📦 Artifacts :** APK & AppBundle générés ✅\n\n**🔗 Téléchargement (Release GitHub) :**\n${{ steps.create_release.outputs.html_url }}\n\n*Note : Vous trouverez l’APK directement dans les assets de la release ci-dessus.*"
+            }' ${{ secrets.DISCORD_WEBHOOK_URL }}
+          else
+            curl -H "Content-Type: application/json" -X POST -d '{
+              "username": "Mizu Builder Error",
+              "avatar_url": "https://cdn-icons-png.flaticon.com/512/595/595067.png",
+              "content": "❌ **Échec du Build Fiestapp Mobile !**\n\n**Tag :** `${{ steps.get_version.outputs.VERSION }}`\n**Commit :** `${{ github.sha }}`\n\n⚠️ Le build a échoué. Vérifiez les logs :\n🔗 [Logs GitHub Actions](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+            }' ${{ secrets.DISCORD_WEBHOOK_URL }}
+          fi
