@@ -53,7 +53,6 @@ class DetailState extends ConsumerState<Details> {
     final notifier = ref.read(eventDetailsProvider.notifier);
     final apiClient = ref.read(apiClientProvider);
 
-    notifier.setLoading(true);
     try {
       final prunes = await EventService.getPrunes(
         apiClient: apiClient,
@@ -61,7 +60,7 @@ class DetailState extends ConsumerState<Details> {
       );
       notifier.setPrunes(prunes);
     } catch (e) {
-      notifier.setLoading(false);
+      print(e);
     }
   }
 
@@ -81,7 +80,7 @@ class DetailState extends ConsumerState<Details> {
   Widget build(BuildContext context) {
     final state = ref.watch(eventDetailsProvider);
 
-    if (state.isLoading && (state.event == null || state.prunes == null)) {
+    if (state.isLoading && state.event == null) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
@@ -126,7 +125,7 @@ class DetailState extends ConsumerState<Details> {
                           isMapExpanded: isMapExpanded,
                           onExpandToggle: expandMap,
                           event: state.event!,
-                          prunes: state.prunes!,
+                          prunes: state.prunes,
                         ),
                 ),
               ),

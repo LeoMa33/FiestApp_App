@@ -15,14 +15,14 @@ class EventDetailsWithMap extends ConsumerStatefulWidget {
   final bool isMapExpanded;
   final VoidCallback onExpandToggle;
   final EventDto event;
-  final PrunesDto prunes;
+  final PrunesDto? prunes;
 
   const EventDetailsWithMap({
     super.key,
     required this.isMapExpanded,
     required this.onExpandToggle,
     required this.event,
-    required this.prunes,
+    this.prunes,
   });
 
   @override
@@ -32,12 +32,25 @@ class EventDetailsWithMap extends ConsumerStatefulWidget {
 
 class _EventDetailsWithMapState extends ConsumerState<EventDetailsWithMap> {
   MapboxMap? _mapboxMap;
+  PointAnnotationManager? _pointAnnotationManager;
   bool _mapInitialized = false;
 
   @override
   void dispose() {
     _mapboxMap = null;
+    _pointAnnotationManager = null;
     super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(covariant EventDetailsWithMap oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Si les prunes arrivent après l'initialisation de la carte
+    if (oldWidget.prunes == null &&
+        widget.prunes != null &&
+        _pointAnnotationManager != null) {
+      _addMarkers(_pointAnnotationManager!);
+    }
   }
 
   void _onMapCreated(MapboxMap mapboxMap) async {
@@ -64,10 +77,10 @@ class _EventDetailsWithMapState extends ConsumerState<EventDetailsWithMap> {
         debugPrint('Location settings error: $e');
       }
 
-      final pointAnnotationManager = await mapboxMap.annotations
+      _pointAnnotationManager = await mapboxMap.annotations
           .createPointAnnotationManager();
 
-      await _addMarkers(pointAnnotationManager);
+      await _addMarkers(_pointAnnotationManager!);
 
       setState(() {
         _mapInitialized = true;
@@ -79,6 +92,9 @@ class _EventDetailsWithMapState extends ConsumerState<EventDetailsWithMap> {
 
   Future<void> _addMarkers(PointAnnotationManager manager) async {
     try {
+      // Nettoyer les anciens marqueurs si nécessaire avant d'en rajouter
+      await manager.deleteAll();
+
       // Marker pour l'événement
       Uint8List eventMarkerImage = await createCustomMarker(
         S3Service.getEventImage(widget.event.imageUrl),
@@ -97,22 +113,25 @@ class _EventDetailsWithMapState extends ConsumerState<EventDetailsWithMap> {
         ),
       );
 
-      for (final transport in widget.prunes.transports) {
-        Uint8List carMarkerImage = await createCarMarker(
-          S3Service.getUserImage(transport.driver.imageUrl),
-        );
-        await manager.create(
-          PointAnnotationOptions(
-            geometry: Point(
-              coordinates: Position(
-                transport.location.long,
-                transport.location.lat,
+      // Si les prunes sont là, on dessine les voitures
+      if (widget.prunes != null) {
+        for (final transport in widget.prunes!.transports) {
+          Uint8List carMarkerImage = await createCarMarker(
+            S3Service.getUserImage(transport.driver.imageUrl),
+          );
+          await manager.create(
+            PointAnnotationOptions(
+              geometry: Point(
+                coordinates: Position(
+                  transport.location.long,
+                  transport.location.lat,
+                ),
               ),
+              image: carMarkerImage,
+              iconSize: 0.23,
             ),
-            image: carMarkerImage,
-            iconSize: 0.23,
-          ),
-        );
+          );
+        }
       }
     } catch (e) {
       debugPrint('Markers creation error: $e');
