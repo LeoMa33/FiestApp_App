@@ -2,8 +2,10 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fiestapp/components/button/icon-button.component.dart';
 import 'package:fiestapp/components/modal/invitation-modal.dart';
 import 'package:fiestapp/constant.dart';
+import 'package:fiestapp/core/network/s3_service.dart';
 import 'package:fiestapp/core/routing/route_enum.dart';
 import 'package:fiestapp/feature/event/data/provider/event_details_state.dart';
+import 'package:fiestapp/feature/user/data/dto/user_light_dto.dart';
 import 'package:fiestapp/feature/user/presentation/widgets/external/avatar_group.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -31,8 +33,12 @@ class DetailsHeader extends ConsumerWidget {
 
     if (event == null) return const SizedBox();
 
+    // On inclut le créateur dans la liste pour l'affichage
+    final allParticipants = [event.creator, ...event.participants];
+    final int totalCount = allParticipants.length;
+
     final String usersLengthText =
-        "${event.participants.length} participant${event.participants.length == 1 ? '' : 's'}";
+        "$totalCount participant${totalCount == 1 ? '' : 's'}";
 
     return ClipRRect(
       borderRadius: const BorderRadius.only(
@@ -40,9 +46,7 @@ class DetailsHeader extends ConsumerWidget {
         bottomRight: Radius.circular(40),
       ),
       child: CachedNetworkImage(
-        imageUrl:
-            event.imageUrl ??
-            'https://tripxl.com/blog/wp-content/uploads/2024/09/Subsix-Underwater-Nightclub-Niyama-Private-Islands.jpg',
+        imageUrl: S3Service.getEventImage(event.imageUrl),
         width: double.infinity,
         height: height,
         fit: BoxFit.cover,
@@ -61,7 +65,7 @@ class DetailsHeader extends ConsumerWidget {
               fit: BoxFit.cover,
             ),
           ),
-          child: headerContent(context, usersLengthText, event, ref),
+          child: headerContent(context, usersLengthText, allParticipants, ref),
         ),
         imageBuilder: (context, imageProvider) => Container(
           width: double.infinity,
@@ -69,7 +73,7 @@ class DetailsHeader extends ConsumerWidget {
           decoration: BoxDecoration(
             image: DecorationImage(image: imageProvider, fit: BoxFit.cover),
           ),
-          child: headerContent(context, usersLengthText, event, ref),
+          child: headerContent(context, usersLengthText, allParticipants, ref),
         ),
       ),
     );
@@ -78,7 +82,7 @@ class DetailsHeader extends ConsumerWidget {
   Widget headerContent(
     BuildContext context,
     String usersLengthText,
-    dynamic event,
+    List<UserLightDto> allParticipants,
     WidgetRef ref,
   ) {
     return SafeArea(
@@ -120,7 +124,7 @@ class DetailsHeader extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               AvatarGroup(
-                users: event.participants.toList(),
+                users: allParticipants,
                 haveBackground: true,
                 textColor: Colors.white,
                 text: usersLengthText,

@@ -153,7 +153,7 @@ class ProfilState extends ConsumerState<Profil> {
       case AlcoholConsumption.never:
         return "Jamais";
       default:
-        return "Valeur non reconnue";
+        return "Jamais";
     }
   }
 }

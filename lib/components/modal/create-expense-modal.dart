@@ -2,6 +2,7 @@ import 'package:fiestapp/components/input/data-tag-input.component.dart';
 import 'package:fiestapp/core/common_widgets/button/button.component.dart';
 import 'package:fiestapp/core/network/client/api_client_provider.dart';
 import 'package:fiestapp/enum.dart';
+import 'package:fiestapp/feature/event/data/event_service.dart';
 import 'package:fiestapp/feature/event/data/provider/event_details_state.dart';
 import 'package:fiestapp/feature/expense/data/dto/expense_create_dto.dart';
 import 'package:fiestapp/feature/expense/data/expense_service.dart';
@@ -53,6 +54,13 @@ class _CreateExpenseModalState extends ConsumerState<CreateExpenseModal> {
       );
 
       await ExpenseService.create(apiClient: apiClient, dto: dto);
+
+      // Rafraichir les données de l'event
+      final prunes = await EventService.getPrunes(
+        apiClient: apiClient,
+        id: event.id,
+      );
+      ref.read(eventDetailsProvider.notifier).setPrunes(prunes);
 
       if (mounted) {
         context.pop();

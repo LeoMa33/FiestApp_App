@@ -3,6 +3,7 @@ import 'package:fiestapp/core/network/client/api_client.dart';
 import 'package:fiestapp/feature/event/data/dto/event_create_dto.dart';
 import 'package:fiestapp/feature/event/data/dto/event_dto.dart';
 import 'package:fiestapp/feature/event/data/dto/event_filter_dto.dart';
+import 'package:fiestapp/feature/event/data/dto/parking_dto.dart';
 import 'package:fiestapp/feature/event/data/dto/prunes_dto.dart';
 
 class EventService {
@@ -46,6 +47,23 @@ class EventService {
   }) async {
     try {
       final response = await apiClient.events.getPrunes(id);
+
+      return response;
+    } on DioException catch (e) {
+      print(e);
+      rethrow;
+    } catch (e) {
+      print(e);
+      rethrow;
+    }
+  }
+
+  static Future<List<ParkingDto>> getParkings({
+    required ApiClient apiClient,
+    required String id,
+  }) async {
+    try {
+      final response = await apiClient.events.getParkings(id);
 
       return response;
     } on DioException catch (e) {

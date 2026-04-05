@@ -40,11 +40,13 @@ class AppRouter {
         },
       ),
       GoRoute(
-        path: "${AppRoute.invitation.path}/:id",
+        path: AppRoute.invitation.path,
         name: AppRoute.invitation.name,
         builder: (context, state) {
-          final id = state.pathParameters['id']!;
-          return Invitation(id: id);
+          // On récupère le token soit depuis les queryParameters (?token=...)
+          // soit depuis le path si besoin. Ici on privilégie le queryParameter pour fiestapp://invitation?token=...
+          final token = state.uri.queryParameters['token'];
+          return Invitation(id: token!);
         },
       ),
       GoRoute(

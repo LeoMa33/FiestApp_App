@@ -5,40 +5,68 @@ class UserDto {
   final String id;
   final String name;
   final String mail;
+  final bool isEstimationActive;
   final int age;
-  final int weight;
+  final DateTime birthday;
+  final int? weight;
   final String? imageUrl;
-  final int height;
-  final AlcoholConsumption alcoholConsumption;
-  final Gender gender;
+  final int? height;
+  final Gender? gender;
+  final AlcoholConsumption? alcoholConsumption;
 
   UserDto({
     required this.id,
     required this.name,
     required this.mail,
+    required this.isEstimationActive,
     required this.age,
-    required this.weight,
+    required this.birthday,
+    this.weight,
     this.imageUrl,
-    required this.height,
-    required this.alcoholConsumption,
-    required this.gender,
+    this.height,
+    this.gender,
+    this.alcoholConsumption,
   });
 
   factory UserDto.fromJson(Map<String, dynamic> json) {
-    print(json);
+    final birthday = DateTime.parse(json['birthday'] as String);
+
+    final int age = json['age'] != null
+        ? (json['age'] as num).toInt()
+        : _calculateAge(birthday);
+
     return UserDto(
       id: json['id'] as String,
       name: json['name'] as String,
       mail: json['mail'] as String,
-      age: (json['age'] as num).toInt(),
-      weight: (json['weight'] as num).toInt(),
+      isEstimationActive: json['isEstimationActive'] as bool? ?? false,
+      age: age,
+      birthday: birthday,
+      weight: json['weight'] != null ? (json['weight'] as num).toInt() : null,
       imageUrl: json['imageUrl'] as String?,
-      height: (json['height'] as num).toInt(),
-      alcoholConsumption: AlcoholConsumption.values.byName(
-        json['alcohol_consumption'] as String,
-      ),
-      gender: Gender.fromString(json['gender'] as String),
+      height: json['height'] != null ? (json['height'] as num).toInt() : null,
+      gender: json['gender'] != null
+          ? Gender.fromString(json['gender'] as String)
+          : null,
+      alcoholConsumption: json['alcohol_consumption'] != null
+          ? AlcoholConsumption.values.byName(
+              json['alcohol_consumption'] as String,
+            )
+          : null,
     );
+  }
+
+  static int _calculateAge(DateTime birthday) {
+    final today = DateTime.now();
+
+    int age = today.year - birthday.year;
+
+    if (today.month < birthday.month ||
+        (today.month == birthday.month && today.day < birthday.day)) {
+      age--;
+    }
+
+    return age;
   }
 
   Map<String, dynamic> toJson() {
@@ -46,12 +74,14 @@ class UserDto {
       'id': id,
       'name': name,
       'mail': mail,
+      'isEstimationActive': isEstimationActive,
       'age': age,
+      'birthday': birthday.toIso8601String(),
       'weight': weight,
       'imageUrl': imageUrl,
       'height': height,
-      'alcohol_consumption': alcoholConsumption.name,
-      'gender': gender.value,
+      'gender': gender?.value,
+      'alcohol_consumption': alcoholConsumption?.name,
     };
   }
 }

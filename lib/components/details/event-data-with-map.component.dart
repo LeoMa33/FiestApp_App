@@ -3,6 +3,7 @@ import 'package:fiestapp/components/details/event-data.component.dart';
 import 'package:fiestapp/core/network/s3_service.dart';
 import 'package:fiestapp/core/utils/image_converter.dart';
 import 'package:fiestapp/feature/event/data/dto/event_dto.dart';
+import 'package:fiestapp/feature/event/data/dto/parking_dto.dart';
 import 'package:fiestapp/feature/event/data/dto/prunes_dto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -16,6 +17,7 @@ class EventDetailsWithMap extends ConsumerStatefulWidget {
   final VoidCallback onExpandToggle;
   final EventDto event;
   final PrunesDto? prunes;
+  final List<ParkingDto> parkings;
 
   const EventDetailsWithMap({
     super.key,
@@ -23,6 +25,7 @@ class EventDetailsWithMap extends ConsumerStatefulWidget {
     required this.onExpandToggle,
     required this.event,
     this.prunes,
+    this.parkings = const [],
   });
 
   @override
@@ -45,41 +48,25 @@ class _EventDetailsWithMapState extends ConsumerState<EventDetailsWithMap> {
   @override
   void didUpdateWidget(covariant EventDetailsWithMap oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // Si les prunes arrivent après l'initialisation de la carte
-    if (oldWidget.prunes == null &&
-        widget.prunes != null &&
-        _pointAnnotationManager != null) {
-      _addMarkers(_pointAnnotationManager!);
+    if ((oldWidget.prunes == null && widget.prunes != null) ||
+        (oldWidget.parkings.isEmpty && widget.parkings.isNotEmpty)) {
+      if (_pointAnnotationManager != null) {
+        _addMarkers(_pointAnnotationManager!);
+      }
     }
   }
 
   void _onMapCreated(MapboxMap mapboxMap) async {
     try {
       _mapboxMap = mapboxMap;
-
       await Future.delayed(const Duration(milliseconds: 100));
       if (!mounted) return;
 
       await mapboxMap.scaleBar.updateSettings(ScaleBarSettings(enabled: false));
-
       await _requestLocationPermission();
-
-      try {
-        await mapboxMap.location.updateSettings(
-          LocationComponentSettings(
-            enabled: true,
-            puckBearingEnabled: true,
-            pulsingEnabled: true,
-            showAccuracyRing: true,
-          ),
-        );
-      } catch (e) {
-        debugPrint('Location settings error: $e');
-      }
 
       _pointAnnotationManager = await mapboxMap.annotations
           .createPointAnnotationManager();
-
       await _addMarkers(_pointAnnotationManager!);
 
       setState(() {
@@ -92,14 +79,12 @@ class _EventDetailsWithMapState extends ConsumerState<EventDetailsWithMap> {
 
   Future<void> _addMarkers(PointAnnotationManager manager) async {
     try {
-      // Nettoyer les anciens marqueurs si nécessaire avant d'en rajouter
       await manager.deleteAll();
 
-      // Marker pour l'événement
+      // Marker Événement
       Uint8List eventMarkerImage = await createCustomMarker(
         S3Service.getEventImage(widget.event.imageUrl),
       );
-
       await manager.create(
         PointAnnotationOptions(
           geometry: Point(
@@ -113,7 +98,7 @@ class _EventDetailsWithMapState extends ConsumerState<EventDetailsWithMap> {
         ),
       );
 
-      // Si les prunes sont là, on dessine les voitures
+      // Markers Transports
       if (widget.prunes != null) {
         for (final transport in widget.prunes!.transports) {
           Uint8List carMarkerImage = await createCarMarker(
@@ -133,26 +118,29 @@ class _EventDetailsWithMapState extends ConsumerState<EventDetailsWithMap> {
           );
         }
       }
+
+      // Markers Parkings
+      for (final parking in widget.parkings) {
+        final ByteData bytes = await rootBundle.load(
+          'assets/parking_marker.png',
+        );
+        final Uint8List parkingIcon = bytes.buffer.asUint8List();
+
+        await manager.create(
+          PointAnnotationOptions(
+            geometry: Point(coordinates: Position(parking.lon, parking.lat)),
+            image: parkingIcon,
+            iconSize: 0.05,
+          ),
+        );
+      }
     } catch (e) {
       debugPrint('Markers creation error: $e');
     }
   }
 
   Future<void> _requestLocationPermission() async {
-    try {
-      var status = await Permission.locationWhenInUse.request();
-      if (status.isDenied && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'Permission de localisation nécessaire pour afficher votre position',
-            ),
-          ),
-        );
-      }
-    } catch (e) {
-      debugPrint('Permission request error: $e');
-    }
+    await Permission.locationWhenInUse.request();
   }
 
   @override
@@ -165,8 +153,6 @@ class _EventDetailsWithMapState extends ConsumerState<EventDetailsWithMap> {
         ),
       ),
       zoom: 15,
-      bearing: 0,
-      pitch: 0,
     );
 
     return Column(
@@ -187,7 +173,6 @@ class _EventDetailsWithMapState extends ConsumerState<EventDetailsWithMap> {
               children: [
                 MapWidget(
                   key: const ValueKey('stable-mapbox-map'),
-                  textureView: false,
                   cameraOptions: camera,
                   onMapCreated: _onMapCreated,
                 ),
@@ -203,11 +188,6 @@ class _EventDetailsWithMapState extends ConsumerState<EventDetailsWithMap> {
                     onClick: widget.onExpandToggle,
                   ),
                 ),
-                if (!_mapInitialized)
-                  Container(
-                    color: Colors.grey.shade200,
-                    child: const Center(child: CircularProgressIndicator()),
-                  ),
               ],
             ),
           ),

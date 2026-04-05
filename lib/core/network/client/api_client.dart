@@ -3,6 +3,7 @@ import 'package:fiestapp/feature/accomodation/data/accomodation_module.dart';
 import 'package:fiestapp/feature/auth/data/auth_module.dart';
 import 'package:fiestapp/feature/event/data/event_module.dart';
 import 'package:fiestapp/feature/expense/data/expense_module.dart';
+import 'package:fiestapp/feature/invitation/data/invitation_module.dart';
 import 'package:fiestapp/feature/poll/data/poll_module.dart';
 import 'package:fiestapp/feature/shopping/data/shopping_item_module.dart';
 import 'package:fiestapp/feature/transport/data/transport_module.dart';
@@ -37,4 +38,7 @@ class ApiClient {
   ShoppingItemModule? _shoppingItem;
   ShoppingItemModule get shoppingItem =>
       _shoppingItem ??= ShoppingItemModule(dio);
+
+  InvitationModule? _invitation;
+  InvitationModule get invitation => _invitation ??= InvitationModule(dio);
 }

@@ -25,8 +25,7 @@ class AddEvent extends ConsumerWidget {
     final state = ref.watch(eventCreateProvider);
 
     return Scaffold(
-      backgroundColor: Color(0xffF4F1F7),
-      resizeToAvoidBottomInset: false,
+      backgroundColor: const Color(0xffF4F1F7),
       body: SafeArea(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -38,18 +37,31 @@ class AddEvent extends ConsumerWidget {
                   child: Column(
                     spacing: 20,
                     children: [
-                      AddEventHeader(),
+                      const AddEventHeader(),
                       Column(
                         spacing: 20,
                         children: [
                           ImageSelector(
                             title: "Sélectionnez une image",
                             height: 130,
-                            onImageSelect: (XFile? image) {},
+                            onImageSelect: (XFile? image) async {
+                              if (image != null) {
+                                final webpImage = await convertToWebP(
+                                  File(image.path),
+                                );
+                                ref
+                                    .read(eventCreateProvider.notifier)
+                                    .updateImage(webpImage);
+                              } else {
+                                ref
+                                    .read(eventCreateProvider.notifier)
+                                    .updateImage(null);
+                              }
+                            },
                           ),
-                          AddEventDateTime(),
-                          AddEvenInformationsBlock(),
-                          AddEventAdressBlock(),
+                          const AddEventDateTime(),
+                          const AddEvenInformationsBlock(),
+                          const AddEventAdressBlock(),
                         ],
                       ),
                     ],
@@ -82,13 +94,6 @@ class AddEvent extends ConsumerWidget {
   Future<void> _submitForm(WidgetRef ref, BuildContext context) async {
     final state = ref.read(eventCreateProvider);
 
-    print(state.name);
-    print(state.date);
-    print(state.time);
-    print(state.street);
-    print(state.city);
-    print(state.postalCode);
-
     if (!state.isValid) {
       _showError("Veuillez remplir tous les champs obligatoires", context);
       return;
@@ -100,18 +105,12 @@ class AddEvent extends ConsumerWidget {
       final apiClient = ref.read(apiClientProvider);
       await EventService.create(apiClient: apiClient, dto: state.toDto());
 
-      // Reset form
       ref.read(eventCreateProvider.notifier).reset();
-
-      // Refresh event list if possible
-      // Assuming home page will refresh on entry as set up previously,
-      // but we can trigger it here if needed.
 
       if (context.mounted) {
         context.goNamed(AppRoute.home.name);
       }
     } catch (e) {
-      print(e);
       if (context.mounted) {
         _showError("Une erreur est survenue lors de la création", context);
       }
@@ -124,17 +123,16 @@ class AddEvent extends ConsumerWidget {
     try {
       Directory tempDir = await getTemporaryDirectory();
       String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
+      final targetPath = '${tempDir.path}/image_$timestamp.webp';
 
       return await FlutterImageCompress.compressAndGetFile(
         originalFile.absolute.path,
-        '${tempDir.path}/image_${timestamp}.webp',
+        targetPath,
         format: CompressFormat.webp,
         quality: 80,
-        keepExif: false,
       );
     } catch (e) {
-      print('Erreur conversion WebP: $e');
-      rethrow;
+      return XFile(originalFile.path); // Fallback to original
     }
   }
 

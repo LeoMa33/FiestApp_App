@@ -1,22 +1,31 @@
 import 'package:fiestapp/feature/event/data/dto/event_dto.dart';
+import 'package:fiestapp/feature/event/data/dto/parking_dto.dart';
 import 'package:fiestapp/feature/event/data/dto/prunes_dto.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class EventDetailsState {
   final EventDto? event;
   final PrunesDto? prunes;
+  final List<ParkingDto> parkings;
   final bool isLoading;
 
-  EventDetailsState({this.event, this.prunes, this.isLoading = false});
+  EventDetailsState({
+    this.event,
+    this.prunes,
+    this.parkings = const [],
+    this.isLoading = false,
+  });
 
   EventDetailsState copyWith({
     EventDto? event,
     PrunesDto? prunes,
+    List<ParkingDto>? parkings,
     bool? isLoading,
   }) {
     return EventDetailsState(
       event: event ?? this.event,
       prunes: prunes ?? this.prunes,
+      parkings: parkings ?? this.parkings,
       isLoading: isLoading ?? this.isLoading,
     );
   }
@@ -33,6 +42,10 @@ class EventDetailsNotifier extends StateNotifier<EventDetailsState> {
     state = state.copyWith(prunes: prunes, isLoading: false);
   }
 
+  void setParkings(List<ParkingDto> parkings) {
+    state = state.copyWith(parkings: parkings);
+  }
+
   void setLoading(bool isLoading) {
     state = state.copyWith(isLoading: isLoading);
   }
@@ -44,5 +57,5 @@ class EventDetailsNotifier extends StateNotifier<EventDetailsState> {
 
 final eventDetailsProvider =
     StateNotifierProvider<EventDetailsNotifier, EventDetailsState>((ref) {
-  return EventDetailsNotifier();
-});
+      return EventDetailsNotifier();
+    });

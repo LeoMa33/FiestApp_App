@@ -1,8 +1,7 @@
 import 'package:fiestapp/core/common_widgets/button/button.component.dart';
-import 'package:fiestapp/feature/estimation/data/dto/estimation_dto.dart';
-import 'package:fiestapp/feature/event/data/dto/event_dto.dart';
-import 'package:fiestapp/feature/event/data/dto/location_dto.dart';
-import 'package:fiestapp/feature/user/data/dto/user_light_dto.dart';
+import 'package:fiestapp/core/network/client/api_client_provider.dart';
+import 'package:fiestapp/feature/event/data/provider/event_details_state.dart';
+import 'package:fiestapp/feature/invitation/data/invitation_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -17,49 +16,92 @@ class InvitationModal extends ConsumerStatefulWidget {
 }
 
 class _InvitationModalState extends ConsumerState<InvitationModal> {
-  @protected
-  late QrImage qrImage;
-
-  late String fullInvitationLink;
+  String? fullInvitationLink;
+  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
+    _loadInvitation();
+  }
 
-    // Mock de l'event
-    final EventDto mockEvent = EventDto(
-      name: '',
-      id: '',
-      description: '',
-      date: DateTime.now(),
-      address: '',
-      location: LocationDto(lat: 0, long: 0),
-      creator: UserLightDto(id: '', name: ''),
-      participants: [],
-      estimation: EstimationDto(beer: 3, pizza: 3, softDrink: 3),
-    );
+  Future<void> _loadInvitation() async {
+    final event = ref.read(eventDetailsProvider).event;
+    if (event == null) return;
 
-    fullInvitationLink = 'fiestapp://invitation/${mockEvent.id}';
-    final qrCode = QrCode(5, QrErrorCorrectLevel.H)
-      ..addData(fullInvitationLink);
-    qrImage = QrImage(qrCode);
+    setState(() => isLoading = true);
+
+    try {
+      final apiClient = ref.read(apiClientProvider);
+      final invitation = await InvitationService.getOrCreate(
+        apiClient: apiClient,
+        eventId: event.id,
+      );
+
+      if (mounted) {
+        setState(() {
+          fullInvitationLink = 'fiestapp://invitation?token=${invitation.id}';
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Erreur lors de la génération du lien")),
+        );
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return const Padding(
+        padding: EdgeInsets.all(30),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircularProgressIndicator(color: Color(0xffE15B42)),
+            SizedBox(height: 15),
+            Text("Génération de l'invitation..."),
+          ],
+        ),
+      );
+    }
+
+    if (fullInvitationLink == null) {
+      return const Padding(
+        padding: EdgeInsets.all(30),
+        child: Text("Impossible de générer l'invitation"),
+      );
+    }
+
+    // Niveau M (15%) pour simplifier le motif et faciliter la lecture
+    final qrCode = QrCode.fromData(
+      data: fullInvitationLink!,
+      errorCorrectLevel: QrErrorCorrectLevel.M,
+    );
+    final qrImage = QrImage(qrCode);
+
     return Padding(
       padding: const EdgeInsets.all(15),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          SizedBox(
-            height: 100,
-            width: 100,
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            height: 150,
+            width: 150,
             child: PrettyQrView(
               qrImage: qrImage,
               decoration: const PrettyQrDecoration(
-                shape: PrettyQrRoundedSymbol(color: Color(0xffE15B42)),
+                shape: PrettyQrRoundedSymbol(color: Colors.black),
               ),
             ),
           ),
@@ -82,7 +124,7 @@ class _InvitationModalState extends ConsumerState<InvitationModal> {
             label: 'Copier le lien',
             icon: FontAwesomeIcons.copy,
             onPressed: () async {
-              await Clipboard.setData(ClipboardData(text: fullInvitationLink));
+              await Clipboard.setData(ClipboardData(text: fullInvitationLink!));
               if (mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text("Lien copié avec succès")),
