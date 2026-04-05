@@ -121,7 +121,6 @@ class _EventDetailsWithMapState extends ConsumerState<EventDetailsWithMap> {
 
       // Markers Parkings
       for (final parking in widget.parkings) {
-        // On utilise une icône de parking par défaut (P bleu)
         final ByteData bytes = await rootBundle.load(
           'assets/parking_marker.png',
         );

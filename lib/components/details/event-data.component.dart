@@ -4,6 +4,7 @@ import 'package:fiestapp/components/details/event-title.component.dart';
 import 'package:fiestapp/components/details/planning-data-block.component.dart';
 import 'package:fiestapp/core/utils/date_utils.dart';
 import 'package:fiestapp/feature/event/data/dto/event_dto.dart';
+import 'package:fiestapp/feature/invitation/data/provider/invitation_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -15,9 +16,13 @@ class EventData extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    bool isInvitation = false;
+    final invitationId = ref.watch(invitationIdProvider);
+    final isInvitation = invitationId != null;
+
+    final actions = InvitationActions(ref, context);
+
     return Container(
-      padding: EdgeInsets.all(10),
+      padding: const EdgeInsets.all(10),
       child: Column(
         spacing: 10,
         children: [
@@ -26,7 +31,6 @@ class EventData extends ConsumerWidget {
             hour: formatHour(event.date),
           ),
           EventTitle(title: event.name, adress: event.address),
-
           if (isInvitation)
             Padding(
               padding: const EdgeInsets.all(10),
@@ -38,14 +42,14 @@ class EventData extends ConsumerWidget {
                       icon: FontAwesomeIcons.circleXmark,
                       label: 'Refuser',
                       color: Colors.black,
-                      onPressed: () => {},
+                      onPressed: () => actions.refuse(),
                     ),
                   ),
                   Expanded(
                     child: ColumnIconButton(
                       icon: FontAwesomeIcons.circleCheck,
                       label: 'Accepter',
-                      onPressed: () => {},
+                      onPressed: () => actions.accept(),
                     ),
                   ),
                   Expanded(
@@ -54,13 +58,12 @@ class EventData extends ConsumerWidget {
                       color: Colors.white,
                       textColor: Colors.black,
                       label: 'Indisponible',
-                      onPressed: () => {},
+                      onPressed: () => actions.unavailable(),
                     ),
                   ),
                 ],
               ),
             ),
-
           EventDescription(description: event.description),
         ],
       ),

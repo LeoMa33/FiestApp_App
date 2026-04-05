@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:app_links/app_links.dart';
 import 'package:fiestapp/core/routing/router.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -7,15 +9,17 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
+import 'core/services/deep_link_service.dart';
 import 'core/services/notification_service.dart';
 
-void main() async {
-  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+StreamSubscription<Uri>? _deepLinkSub;
+
+Future<void> main() async {
+  final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
 
   final notificationService = NotificationService();
@@ -27,59 +31,82 @@ void main() async {
   await dotenv.load(fileName: '.env');
   await initializeDateFormatting('fr_FR', null);
 
-  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
-  String mapboxToken = dotenv.env['MAPBOX_TOKEN'] ?? '';
+  final mapboxToken = dotenv.env['MAPBOX_TOKEN'] ?? '';
   MapboxOptions.setAccessToken(mapboxToken);
 
-  runApp(ProviderScope(child: const MyApp()));
+  await initDeepLinkListener();
+
+  runApp(const ProviderScope(child: MyApp()));
 }
 
-void initDeepLinkListener(GoRouter router) {
-  AppLinks().uriLinkStream.listen((uri) {
-    final path = [uri.host, ...uri.pathSegments].join('/');
-    final fullPath = '/$path';
-    print('➡️ Navigation vers $fullPath');
-    router.go(fullPath);
+Future<void> initDeepLinkListener() async {
+  final appLinks = AppLinks();
+
+  final initialUri = await appLinks.getInitialLink();
+  if (initialUri != null) {
+    pendingDeepLinkUri = initialUri;
+  }
+
+  _deepLinkSub?.cancel();
+  _deepLinkSub = appLinks.uriLinkStream.listen((uri) {
+    pendingDeepLinkUri = uri;
+
+    final fullPath = mapDeepLinkToRoute(uri);
+    if (fullPath != null) {
+      AppRouter.router.go(fullPath);
+    }
   });
 }
 
-class MyApp extends ConsumerWidget {
+class MyApp extends ConsumerStatefulWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    initDeepLinkListener(AppRouter.router);
+  ConsumerState<MyApp> createState() => _MyAppState();
+}
 
+class _MyAppState extends ConsumerState<MyApp> {
+  @override
+  void dispose() {
+    _deepLinkSub?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     FlutterNativeSplash.remove();
 
     return MaterialApp.router(
       title: 'FiestApp',
       routerConfig: AppRouter.router,
       localizationsDelegates: GlobalMaterialLocalizations.delegates,
-      supportedLocales: [const Locale('fr')],
+      supportedLocales: const [Locale('fr')],
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         popupMenuTheme: PopupMenuThemeData(
           color: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
-            side: BorderSide(color: Color(0xffE15B42), width: 1.5),
+            side: const BorderSide(color: Color(0xffE15B42), width: 1.5),
           ),
         ),
         textTheme: GoogleFonts.poppinsTextTheme(),
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Color(0xffE15B42),
+          seedColor: const Color(0xffE15B42),
           brightness: Brightness.light,
         ),
-        timePickerTheme: TimePickerThemeData(
+        timePickerTheme: const TimePickerThemeData(
           backgroundColor: Colors.white,
           hourMinuteTextColor: Color(0xffE15B42),
           dialHandColor: Color(0xffE15B42),
           entryModeIconColor: Color(0xffE15B42),
         ),
-        dialogTheme: DialogThemeData(backgroundColor: Colors.white),
-        bottomSheetTheme: BottomSheetThemeData(backgroundColor: Colors.white),
+        dialogTheme: const DialogThemeData(backgroundColor: Colors.white),
+        bottomSheetTheme: const BottomSheetThemeData(
+          backgroundColor: Colors.white,
+        ),
       ),
     );
   }

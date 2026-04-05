@@ -1,5 +1,7 @@
 import 'package:fiestapp/core/network/client/api_client_provider.dart';
 import 'package:fiestapp/core/network/dio_provider.dart';
+import 'package:fiestapp/core/routing/route_enum.dart';
+import 'package:fiestapp/core/services/deep_link_service.dart';
 import 'package:fiestapp/feature/splash/domain/splash_service.dart';
 import 'package:fiestapp/feature/user/data/provider/user_state.dart';
 import 'package:flutter/material.dart';
@@ -43,7 +45,18 @@ class _SplashViewState extends ConsumerState<SplashView> {
 
     if (!mounted) return;
 
-    context.goNamed(result.route.name);
+    final deepLink = pendingDeepLinkUri;
+    pendingDeepLinkUri = null;
+
+    if (deepLink != null) {
+      final route = mapDeepLinkToRoute(deepLink);
+      if (route != null) {
+        context.go(route);
+        return;
+      }
+    }
+
+    context.go(AppRoute.home.path);
   }
 
   @override
