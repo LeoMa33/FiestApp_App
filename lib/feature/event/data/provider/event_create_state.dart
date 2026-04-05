@@ -1,6 +1,7 @@
 import 'package:fiestapp/feature/event/data/dto/event_create_dto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 
 class EventCreateState {
   final String name;
@@ -11,6 +12,7 @@ class EventCreateState {
   final String city;
   final String postalCode;
   final bool isLoading;
+  final XFile? image;
 
   EventCreateState({
     this.name = '',
@@ -21,6 +23,7 @@ class EventCreateState {
     this.city = '',
     this.postalCode = '',
     this.isLoading = false,
+    this.image,
   });
 
   EventCreateState copyWith({
@@ -32,6 +35,8 @@ class EventCreateState {
     String? city,
     String? postalCode,
     bool? isLoading,
+    XFile? image,
+    bool clearImage = false,
   }) {
     return EventCreateState(
       name: name ?? this.name,
@@ -42,6 +47,7 @@ class EventCreateState {
       city: city ?? this.city,
       postalCode: postalCode ?? this.postalCode,
       isLoading: isLoading ?? this.isLoading,
+      image: clearImage ? null : (image ?? this.image),
     );
   }
 
@@ -67,6 +73,7 @@ class EventCreateState {
       description: description,
       date: combinedDateTime,
       address: '$street, $postalCode $city',
+      image: image,
     );
   }
 }
@@ -83,6 +90,7 @@ class EventCreateNotifier extends StateNotifier<EventCreateState> {
   void updateCity(String city) => state = state.copyWith(city: city);
   void updatePostalCode(String postalCode) =>
       state = state.copyWith(postalCode: postalCode);
+  void updateImage(XFile? image) => state = state.copyWith(image: image, clearImage: image == null);
   void setLoading(bool isLoading) =>
       state = state.copyWith(isLoading: isLoading);
 

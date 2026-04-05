@@ -61,7 +61,7 @@ class EventData extends ConsumerWidget {
               ),
             ),
 
-          EventDescription(description: "Hey viens à mon évènement !"),
+          EventDescription(description: event.description),
         ],
       ),
     );

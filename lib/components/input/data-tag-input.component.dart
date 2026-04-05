@@ -24,6 +24,7 @@ class DataTagInput extends ConsumerWidget {
     this.timeFormat = 'HH:mm',
     this.firstDate,
     this.lastDate,
+    this.minValue = 0,
   });
 
   final String title;
@@ -43,6 +44,7 @@ class DataTagInput extends ConsumerWidget {
   final String timeFormat;
   final DateTime? firstDate;
   final DateTime? lastDate;
+  final int minValue;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -183,7 +185,7 @@ class DataTagInput extends ConsumerWidget {
             GestureDetector(
               onTap: () {
                 final currentValue = int.tryParse(controller.text) ?? 0;
-                if (currentValue > 0) {
+                if (currentValue > minValue) {
                   final newValue = (currentValue - 1).toString();
                   controller.text = newValue;
                   onChanged?.call(newValue);
@@ -202,7 +204,15 @@ class DataTagInput extends ConsumerWidget {
                 controller: controller,
                 enabled: enabled,
                 keyboardType: const TextInputType.numberWithOptions(),
-                onChanged: onChanged,
+                onChanged: (value) {
+                  final parsedValue = int.tryParse(value);
+                  if (parsedValue != null && parsedValue < minValue) {
+                    controller.text = minValue.toString();
+                    onChanged?.call(minValue.toString());
+                  } else {
+                    onChanged?.call(value);
+                  }
+                },
                 style: const TextStyle(
                   color: Colors.black,
                   fontSize: 15,

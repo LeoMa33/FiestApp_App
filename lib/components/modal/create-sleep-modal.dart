@@ -4,6 +4,7 @@ import 'package:fiestapp/core/network/client/api_client_provider.dart';
 import 'package:fiestapp/enum.dart';
 import 'package:fiestapp/feature/accomodation/data/accomodation_service.dart';
 import 'package:fiestapp/feature/accomodation/data/dto/accomodation_create_dto.dart';
+import 'package:fiestapp/feature/event/data/event_service.dart';
 import 'package:fiestapp/feature/event/data/provider/event_details_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,19 +19,13 @@ class CreateSleepModal extends ConsumerStatefulWidget {
 }
 
 class _CreateSleepModalState extends ConsumerState<CreateSleepModal> {
-  final TextEditingController _streetController = TextEditingController();
-  final TextEditingController _cityController = TextEditingController();
-  final TextEditingController _postalCodeController = TextEditingController();
   final TextEditingController _placesController = TextEditingController(
-    text: '0',
+    text: '1',
   );
   bool isLoading = false;
 
   @override
   void dispose() {
-    _streetController.dispose();
-    _cityController.dispose();
-    _postalCodeController.dispose();
     _placesController.dispose();
     super.dispose();
   }
@@ -39,11 +34,13 @@ class _CreateSleepModalState extends ConsumerState<CreateSleepModal> {
     final event = ref.read(eventDetailsProvider).event;
     if (event == null) return;
 
-    if (_streetController.text.isEmpty ||
-        _cityController.text.isEmpty ||
-        _placesController.text == '0') {
+    final places = int.tryParse(_placesController.text) ?? 0;
+
+    if (places < 1) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Veuillez remplir tous les champs")),
+        const SnackBar(
+          content: Text("Veuillez entrer au moins 1 place disponible"),
+        ),
       );
       return;
     }
@@ -53,13 +50,18 @@ class _CreateSleepModalState extends ConsumerState<CreateSleepModal> {
     try {
       final apiClient = ref.read(apiClientProvider);
       final dto = AccommodationCreateDto(
-        count: int.parse(_placesController.text),
-        address:
-            "${_streetController.text}, ${_postalCodeController.text} ${_cityController.text}",
+        count: places,
         eventId: event.id,
       );
 
       await AccomodationService.create(apiClient: apiClient, dto: dto);
+
+      // Rafraichir les données de l'event
+      final prunes = await EventService.getPrunes(
+        apiClient: apiClient,
+        id: event.id,
+      );
+      ref.read(eventDetailsProvider.notifier).setPrunes(prunes);
 
       if (mounted) {
         context.pop();
@@ -98,37 +100,11 @@ class _CreateSleepModalState extends ConsumerState<CreateSleepModal> {
               ),
             ),
             DataTagInput(
-              title: 'Rue',
-              placeholder: 'Entrer la rue',
-              inputType: InputType.text,
-              controller: _streetController,
-            ),
-            Row(
-              spacing: 20,
-              children: [
-                Expanded(
-                  child: DataTagInput(
-                    title: 'Ville',
-                    placeholder: 'Ville',
-                    inputType: InputType.text,
-                    controller: _cityController,
-                  ),
-                ),
-                Expanded(
-                  child: DataTagInput(
-                    title: 'Code postal',
-                    placeholder: 'Code postal',
-                    inputType: InputType.number,
-                    controller: _postalCodeController,
-                  ),
-                ),
-              ],
-            ),
-            DataTagInput(
               title: 'Places disponibles',
-              placeholder: '0',
+              placeholder: '1',
               inputType: InputType.counter,
               controller: _placesController,
+              minValue: 1,
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,

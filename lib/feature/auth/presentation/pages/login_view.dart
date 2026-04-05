@@ -5,7 +5,6 @@ import 'package:fiestapp/core/network/dio_provider.dart';
 import 'package:fiestapp/core/routing/route_enum.dart';
 import 'package:fiestapp/feature/auth/data/auth_service.dart';
 import 'package:fiestapp/feature/auth/data/dto/auth_dto.dart';
-import 'package:fiestapp/feature/user/data/provider/user_create_state.dart';
 import 'package:fiestapp/feature/user/data/provider/user_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -67,9 +66,6 @@ class _LoginViewState extends ConsumerState<LoginView> {
     } on DioException catch (e) {
       if (e.response?.statusCode == 404) {
         if (mounted) {
-          ref
-              .read(userCreateProvider.notifier)
-              .updateMail(_emailController.text);
           context.goNamed(AppRoute.createprofile.name);
         }
       }

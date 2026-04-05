@@ -4,7 +4,6 @@ class AccommodationDto {
   final String id;
   final UserLightDto host;
   final int count;
-  final String? address;
   final List<UserLightDto> guests;
   final String eventId;
 
@@ -12,7 +11,6 @@ class AccommodationDto {
     required this.id,
     required this.host,
     required this.count,
-    this.address,
     required this.guests,
     required this.eventId,
   });
@@ -22,7 +20,6 @@ class AccommodationDto {
       id: json['id'] as String,
       host: UserLightDto.fromJson(json['host'] as Map<String, dynamic>),
       count: (json['count'] as num).toInt(),
-      address: json['address'] as String?,
       guests:
           (json['guests'] as List<dynamic>?)
               ?.map((g) => UserLightDto.fromJson(g as Map<String, dynamic>))
@@ -37,7 +34,6 @@ class AccommodationDto {
       'id': id,
       'host': host.toJson(),
       'count': count,
-      'address': address,
       'guests': guests.map((g) => g.toJson()).toList(),
       'eventId': eventId,
     };

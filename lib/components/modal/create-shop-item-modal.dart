@@ -3,6 +3,7 @@ import 'package:fiestapp/constant.dart';
 import 'package:fiestapp/core/common_widgets/button/button.component.dart';
 import 'package:fiestapp/core/network/client/api_client_provider.dart';
 import 'package:fiestapp/enum.dart';
+import 'package:fiestapp/feature/event/data/event_service.dart';
 import 'package:fiestapp/feature/event/data/provider/event_details_state.dart';
 import 'package:fiestapp/feature/shopping/data/dto/shopping_item_create_dto.dart';
 import 'package:fiestapp/feature/shopping/data/shopping_item_service.dart';
@@ -21,7 +22,7 @@ class CreateShopItemModal extends ConsumerStatefulWidget {
 
 class _CreateShopItemModalState extends ConsumerState<CreateShopItemModal> {
   final TextEditingController _quantityController = TextEditingController(
-    text: '0',
+    text: '1',
   );
   final TextEditingController _nameController = TextEditingController();
 
@@ -82,9 +83,13 @@ class _CreateShopItemModalState extends ConsumerState<CreateShopItemModal> {
     final event = ref.read(eventDetailsProvider).event;
     if (event == null) return;
 
-    if (_nameController.text.isEmpty || _quantityController.text == '0') {
+    final quantity = int.tryParse(_quantityController.text) ?? 0;
+
+    if (_nameController.text.isEmpty || quantity < 1) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Veuillez remplir tous les champs")),
+        const SnackBar(
+          content: Text("Veuillez remplir tous les champs (min 1 article)"),
+        ),
       );
       return;
     }
@@ -95,12 +100,19 @@ class _CreateShopItemModalState extends ConsumerState<CreateShopItemModal> {
       final apiClient = ref.read(apiClientProvider);
       final dto = ShoppingItemCreateDto(
         name: _nameController.text,
-        quantity: int.parse(_quantityController.text),
+        quantity: quantity,
         image: "$S3_enpoint/asset/$selectedImage.webp",
         eventId: event.id,
       );
 
       await ShoppingItemService.create(apiClient: apiClient, dto: dto);
+
+      // Rafraichir les données de l'event
+      final prunes = await EventService.getPrunes(
+        apiClient: apiClient,
+        id: event.id,
+      );
+      ref.read(eventDetailsProvider.notifier).setPrunes(prunes);
 
       if (mounted) {
         context.pop();
@@ -179,9 +191,10 @@ class _CreateShopItemModalState extends ConsumerState<CreateShopItemModal> {
                       ),
                       DataTagInput(
                         title: 'Quantité',
-                        placeholder: '0',
+                        placeholder: '1',
                         inputType: InputType.counter,
                         controller: _quantityController,
+                        minValue: 1,
                       ),
                     ],
                   ),

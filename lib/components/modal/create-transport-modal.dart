@@ -2,8 +2,8 @@ import 'package:fiestapp/components/input/data-tag-input.component.dart';
 import 'package:fiestapp/core/common_widgets/button/button.component.dart';
 import 'package:fiestapp/core/network/client/api_client_provider.dart';
 import 'package:fiestapp/enum.dart';
-import 'package:fiestapp/feature/event/data/provider/event_details_state.dart';
 import 'package:fiestapp/feature/event/data/event_service.dart';
+import 'package:fiestapp/feature/event/data/provider/event_details_state.dart';
 import 'package:fiestapp/feature/transport/data/dto/transport_create_dto.dart';
 import 'package:fiestapp/feature/transport/data/transport_service.dart';
 import 'package:flutter/material.dart';
@@ -24,7 +24,7 @@ class _CreateTransportModalState extends ConsumerState<CreateTransportModal> {
   final TextEditingController _cityController = TextEditingController();
   final TextEditingController _postalCodeController = TextEditingController();
   final TextEditingController _placesController = TextEditingController(
-    text: '0',
+    text: '1',
   );
   bool isLoading = false;
 
@@ -41,11 +41,15 @@ class _CreateTransportModalState extends ConsumerState<CreateTransportModal> {
     final event = ref.read(eventDetailsProvider).event;
     if (event == null) return;
 
+    final places = int.tryParse(_placesController.text) ?? 0;
+
     if (_streetController.text.isEmpty ||
         _cityController.text.isEmpty ||
-        _placesController.text == '0') {
+        places < 1) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Veuillez remplir tous les champs")),
+        const SnackBar(
+          content: Text("Veuillez remplir tous les champs (min 1 place)"),
+        ),
       );
       return;
     }
@@ -55,7 +59,7 @@ class _CreateTransportModalState extends ConsumerState<CreateTransportModal> {
     try {
       final apiClient = ref.read(apiClientProvider);
       final dto = TransportCreateDto(
-        count: int.parse(_placesController.text),
+        count: places,
         address:
             "${_streetController.text}, ${_postalCodeController.text} ${_cityController.text}",
         eventId: event.id,
@@ -100,7 +104,7 @@ class _CreateTransportModalState extends ConsumerState<CreateTransportModal> {
           crossAxisAlignment: CrossAxisAlignment.start,
           spacing: 20,
           children: [
-            Center(
+            const Center(
               child: Text(
                 "Ajout d'un transport",
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
@@ -135,9 +139,10 @@ class _CreateTransportModalState extends ConsumerState<CreateTransportModal> {
             ),
             DataTagInput(
               title: 'Places disponibles',
-              placeholder: '0',
+              placeholder: '1',
               inputType: InputType.counter,
               controller: _placesController,
+              minValue: 1,
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,

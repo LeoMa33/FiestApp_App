@@ -11,9 +11,9 @@ class EstimationDto {
 
   factory EstimationDto.fromJson(Map<String, dynamic> json) {
     return EstimationDto(
-      beer: json['beer'] as int,
-      pizza: json['pizza'] as int,
-      softDrink: json['soft_drink'] as int,
+      beer: (json['beer'] ?? 0) as int,
+      pizza: (json['pizza'] ?? 0) as int,
+      softDrink: (json['soft_drink'] ?? 0) as int,
     );
   }
 

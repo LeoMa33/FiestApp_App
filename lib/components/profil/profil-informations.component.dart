@@ -33,14 +33,17 @@ class ProfilInformations extends ConsumerWidget {
                 imageSize: 50,
                 s3ImageUrl: "${S3_enpoint}/asset/taille.webp",
                 principalLabel: 'Taille',
-                secondaryLabel:
-                    '${currentUser.height ~/ 100}m${currentUser.height % 100}',
+                secondaryLabel: currentUser.height != null
+                    ? '${currentUser.height! ~/ 100}m${currentUser.height! % 100}'
+                    : '-',
               ),
               IllustrationCard(
                 imageSize: 50,
                 s3ImageUrl: "${S3_enpoint}/asset/poid.webp",
                 principalLabel: 'Poids',
-                secondaryLabel: '${currentUser.weight / 1000} kg',
+                secondaryLabel: currentUser.weight != null
+                    ? '${currentUser.weight! / 1000} kg'
+                    : '-',
               ),
               IllustrationCard(
                 imageSize: 50,

@@ -3,6 +3,7 @@ import 'package:fiestapp/components/input/data-tag-input.component.dart';
 import 'package:fiestapp/core/common_widgets/button/button.component.dart';
 import 'package:fiestapp/core/network/client/api_client_provider.dart';
 import 'package:fiestapp/enum.dart';
+import 'package:fiestapp/feature/event/data/event_service.dart';
 import 'package:fiestapp/feature/event/data/provider/event_details_state.dart';
 import 'package:fiestapp/feature/poll/data/dto/poll_create_dto.dart';
 import 'package:fiestapp/feature/poll/data/dto/poll_option_create_dto.dart';
@@ -84,6 +85,13 @@ class _CreatePollModalState extends ConsumerState<CreatePollModal> {
       );
 
       await PollService.create(apiClient: apiClient, dto: dto);
+
+      // Rafraichir les données de l'event (prunes)
+      final prunes = await EventService.getPrunes(
+        apiClient: apiClient,
+        id: event.id,
+      );
+      ref.read(eventDetailsProvider.notifier).setPrunes(prunes);
 
       if (mounted) {
         context.pop();

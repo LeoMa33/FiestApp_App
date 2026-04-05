@@ -4,6 +4,7 @@ import 'package:fiestapp/feature/event/data/dto/event_dto.dart';
 import 'package:fiestapp/feature/event/data/dto/event_filter_dto.dart';
 import 'package:fiestapp/feature/event/data/dto/event_update_dto.dart';
 import 'package:fiestapp/feature/event/data/dto/prunes_dto.dart';
+import 'package:http_parser/http_parser.dart';
 
 class EventModule {
   final Dio _dio;
@@ -27,7 +28,22 @@ class EventModule {
   }
 
   Future<EventDto> post(EventCreateDto dto) async {
-    final response = await _dio.post(baseRoute, data: dto.toJson());
+    dynamic data;
+
+    if (dto.image != null) {
+      data = FormData.fromMap({
+        ...dto.toJson(),
+        'file': await MultipartFile.fromFile(
+          dto.image!.path,
+          filename: dto.image!.path.split('/').last,
+          contentType: MediaType('image', 'webp'),
+        ),
+      });
+    } else {
+      data = dto.toJson();
+    }
+
+    final response = await _dio.post(baseRoute, data: data);
     return EventDto.fromJson(response.data);
   }
 
