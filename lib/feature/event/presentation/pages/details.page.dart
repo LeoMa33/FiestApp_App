@@ -27,6 +27,7 @@ class DetailState extends ConsumerState<Details> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadInitialData();
       _loadOrganisationData();
+      _loadParkingsData();
     });
   }
 
@@ -64,6 +65,21 @@ class DetailState extends ConsumerState<Details> {
     }
   }
 
+  Future<void> _loadParkingsData() async {
+    final notifier = ref.read(eventDetailsProvider.notifier);
+    final apiClient = ref.read(apiClientProvider);
+
+    try {
+      final parkings = await EventService.getParkings(
+        apiClient: apiClient,
+        id: widget.id,
+      );
+      notifier.setParkings(parkings);
+    } catch (e) {
+      print(e);
+    }
+  }
+
   void expandMap() {
     setState(() {
       isMapExpanded = !isMapExpanded;
@@ -91,17 +107,22 @@ class DetailState extends ConsumerState<Details> {
     return SafeArea(
       top: false,
       child: Scaffold(
-        bottomNavigationBar: isMapExpanded
-            ? SizedBox()
-            : Padding(
-                padding: const EdgeInsets.only(bottom: 15, left: 15, right: 15),
-                child: PageSwitcher(
-                  onPageChanged: changePage,
-                  currentPage: currentPage,
-                  firstPage: 'Informations',
-                  secondPage: 'Organisation',
+        bottomNavigationBar:
+            isMapExpanded
+                ? const SizedBox()
+                : Padding(
+                  padding: const EdgeInsets.only(
+                    bottom: 15,
+                    left: 15,
+                    right: 15,
+                  ),
+                  child: PageSwitcher(
+                    onPageChanged: changePage,
+                    currentPage: currentPage,
+                    firstPage: 'Informations',
+                    secondPage: 'Organisation',
+                  ),
                 ),
-              ),
 
         backgroundColor: const Color(0xffF4F1F7),
         body: Column(
@@ -119,14 +140,16 @@ class DetailState extends ConsumerState<Details> {
                 padding: const EdgeInsets.all(10),
                 child: AnimatedSwitcher(
                   duration: const Duration(milliseconds: 200),
-                  child: currentPage == 1
-                      ? const Organisation()
-                      : EventDetailsWithMap(
-                          isMapExpanded: isMapExpanded,
-                          onExpandToggle: expandMap,
-                          event: state.event!,
-                          prunes: state.prunes,
-                        ),
+                  child:
+                      currentPage == 1
+                          ? const Organisation()
+                          : EventDetailsWithMap(
+                            isMapExpanded: isMapExpanded,
+                            onExpandToggle: expandMap,
+                            event: state.event!,
+                            prunes: state.prunes,
+                            parkings: state.parkings,
+                          ),
                 ),
               ),
             ),

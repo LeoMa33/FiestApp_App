@@ -3,6 +3,7 @@ import 'package:fiestapp/feature/event/data/dto/event_create_dto.dart';
 import 'package:fiestapp/feature/event/data/dto/event_dto.dart';
 import 'package:fiestapp/feature/event/data/dto/event_filter_dto.dart';
 import 'package:fiestapp/feature/event/data/dto/event_update_dto.dart';
+import 'package:fiestapp/feature/event/data/dto/parking_dto.dart';
 import 'package:fiestapp/feature/event/data/dto/prunes_dto.dart';
 import 'package:http_parser/http_parser.dart';
 
@@ -25,6 +26,12 @@ class EventModule {
   Future<PrunesDto> getPrunes(String id) async {
     final response = await _dio.get('$baseRoute/$id/prunes');
     return PrunesDto.fromJson(response.data);
+  }
+
+  Future<List<ParkingDto>> getParkings(String id) async {
+    final response = await _dio.get('$baseRoute/$id/parkings');
+    final List<dynamic> data = response.data;
+    return data.map((json) => ParkingDto.fromJson(json)).toList();
   }
 
   Future<EventDto> post(EventCreateDto dto) async {
