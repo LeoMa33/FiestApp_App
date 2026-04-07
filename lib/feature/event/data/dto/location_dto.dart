@@ -10,8 +10,12 @@ class LocationDto {
 
   factory LocationDto.fromJson(Map<String, dynamic> json) {
     return LocationDto(
-      lat: double.parse(json['lat']),
-      long: double.parse(json['long']),
+      lat: (json['lat'] is String)
+          ? double.parse(json['lat'])
+          : (json['lat'] as num).toDouble(),
+      long: (json['long'] is String)
+          ? double.parse(json['long'])
+          : (json['long'] as num).toDouble(),
     );
   }
 }

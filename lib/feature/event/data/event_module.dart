@@ -15,6 +15,9 @@ class EventModule {
   Future<List<EventDto>> getAll(EventFilterDto dto) async {
     final response = await _dio.get(baseRoute, queryParameters: dto.toJson());
     final List<dynamic> items = response.data['items'];
+
+    print(response.data);
+
     return items.map((json) => EventDto.fromJson(json)).toList();
   }
 
@@ -51,6 +54,7 @@ class EventModule {
     }
 
     final response = await _dio.post(baseRoute, data: data);
+
     return EventDto.fromJson(response.data);
   }
 

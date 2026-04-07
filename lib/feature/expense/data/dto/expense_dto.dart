@@ -15,10 +15,14 @@ class ExpenseDto {
 
   factory ExpenseDto.fromJson(Map<String, dynamic> json) {
     return ExpenseDto(
-      id: json['id'] as String,
-      name: json['name'] as String,
-      author: UserLightDto.fromJson(json['author'] as Map<String, dynamic>),
-      amount: double.parse(json['amount']),
+      id: json['id'].toString(),
+      name: json['name'] as String? ?? '',
+      author: UserLightDto.fromJson(
+        (json['author'] ?? {}) as Map<String, dynamic>,
+      ),
+      amount: (json['amount'] is String)
+          ? double.parse(json['amount'])
+          : (json['amount'] as num).toDouble(),
     );
   }
 

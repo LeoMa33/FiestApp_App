@@ -36,12 +36,12 @@ class EventDto {
       address: json['address'] as String,
       location: LocationDto.fromJson(json['location'] as Map<String, dynamic>),
       imageUrl: json['imageUrl'] as String?,
-      creator: UserLightDto.fromJson(json['creator'] as Map<String, dynamic>),
+      creator: UserLightDto.fromJson(json['organizer'] as Map<String, dynamic>),
       participants: (json['participants'] as List<dynamic>)
           .map((e) => UserLightDto.fromJson(e as Map<String, dynamic>))
           .toList(),
       estimation: EstimationDto.fromJson(
-        json['estimation'] as Map<String, dynamic>,
+        (json['estimation'] ?? {}) as Map<String, dynamic>,
       ),
     );
   }
@@ -55,7 +55,7 @@ class EventDto {
       'address': address,
       'location': location.toJson(),
       'imageUrl': imageUrl,
-      'creator': creator.toJson(),
+      'organizer': creator.toJson(),
       'participants': participants.map((e) => e.toJson()).toList(),
       'estimation': estimation.toJson(),
     };

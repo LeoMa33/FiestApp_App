@@ -54,7 +54,7 @@ class UserCreateState {
       birthday:
           birthday ?? DateTime.now().subtract(const Duration(days: 365 * 18)),
       weight: isEstimationActive ? weight : null,
-      height: isEstimationActive ? height : null,
+      height: isEstimationActive ? height * 1000 : null,
       isEstimationActive: isEstimationActive,
       alcoholConsumption: isEstimationActive ? alcoholConsumption : null,
       gender: gender,
