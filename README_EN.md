@@ -205,4 +205,4 @@ All calls to the FiestApp API are made through services in `lib/core/network/` w
 
 ---
 
-> Developed with ❤️ for the **[FiestApp](https://github.com/LeoMa33/FiestApp_Api)** ecosystem.
+> Developed with ❤️ for the **[FiestApp](https://github.com/Manon-Arc/FiestApp_Api)** ecosystem.
