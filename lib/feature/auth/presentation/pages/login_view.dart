@@ -129,7 +129,10 @@ class _LoginViewState extends ConsumerState<LoginView> {
               Align(
                 alignment: Alignment.centerRight,
                 child: TextButton(
-                  onPressed: _isLoading ? null : () {},
+                  onPressed:
+                      _isLoading
+                          ? null
+                          : () => context.pushNamed(AppRoute.askResetPassword.name),
                   style: TextButton.styleFrom(
                     padding: EdgeInsets.zero,
                     minimumSize: Size.zero,
@@ -158,11 +161,12 @@ class _LoginViewState extends ConsumerState<LoginView> {
                 style: TextStyle(color: Colors.black, fontSize: 14),
               ),
               GestureDetector(
-                onTap: _isLoading
-                    ? null
-                    : () {
-                        context.replaceNamed(AppRoute.register.name);
-                      },
+                onTap:
+                    _isLoading
+                        ? null
+                        : () {
+                          context.replaceNamed(AppRoute.register.name);
+                        },
                 child: const Text(
                   "S'inscrire",
                   style: TextStyle(

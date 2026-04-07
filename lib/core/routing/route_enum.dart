@@ -8,6 +8,8 @@ enum AppRoute {
   details(name: 'details', path: '/details'),
   invitation(name: 'invitation', path: '/invitation'),
   notification(name: 'notification', path: '/notification'),
+  askResetPassword(name: 'askResetPassword', path: '/ask-reset-password'),
+  resetPassword(name: 'resetPassword', path: '/reset-password'),
   addEvent(name: 'addEvent', path: '/add-event');
 
   final String name;

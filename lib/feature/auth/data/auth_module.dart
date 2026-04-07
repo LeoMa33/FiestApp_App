@@ -26,6 +26,17 @@ class AuthModule {
     return AuthResponseDto.fromJson(response.data);
   }
 
+  Future<void> askResetPassword(String mail) async {
+    await _dio.post('$baseRoute/ask-reset-password', data: {'mail': mail});
+  }
+
+  Future<void> updatePassword(String key, String password) async {
+    await _dio.patch(
+      '$baseRoute/update_password',
+      data: {'key': key, 'password': password},
+    );
+  }
+
   updateCredential(data) async {
     // TODO type
     await _dio.patch('$baseRoute/update_credentials', data: data.toJson());

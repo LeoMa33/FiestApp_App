@@ -45,6 +45,9 @@ class _SplashViewState extends ConsumerState<SplashView> {
 
     if (!mounted) return;
 
+    if (result.route != AppRoute.home) {
+      context.goNamed(result.route.name);
+    }
     final deepLink = pendingDeepLinkUri;
     pendingDeepLinkUri = null;
 
@@ -56,7 +59,7 @@ class _SplashViewState extends ConsumerState<SplashView> {
       }
     }
 
-    context.go(AppRoute.home.path);
+    context.goNamed(result.route.name);
   }
 
   @override

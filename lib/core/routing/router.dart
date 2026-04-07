@@ -1,6 +1,8 @@
+import 'package:fiestapp/feature/auth/presentation/pages/ask_reset_password_view.dart';
 import 'package:fiestapp/feature/auth/presentation/pages/create_profile_view.dart';
 import 'package:fiestapp/feature/auth/presentation/pages/login_view.dart';
 import 'package:fiestapp/feature/auth/presentation/pages/register_view.dart';
+import 'package:fiestapp/feature/auth/presentation/pages/reset_password_view.dart';
 import 'package:fiestapp/feature/event/presentation/pages/add-event.page.dart';
 import 'package:fiestapp/feature/event/presentation/pages/details.page.dart';
 import 'package:fiestapp/feature/event/presentation/pages/home.page.dart';
@@ -19,7 +21,9 @@ class AppRouter {
       GoRoute(
         path: AppRoute.splash.path,
         name: AppRoute.splash.name,
-        builder: (context, state) => const SplashView(),
+        builder: (context, state) {
+          return SplashView();
+        },
       ),
       GoRoute(
         path: AppRoute.home.path,
@@ -43,10 +47,21 @@ class AppRouter {
         path: AppRoute.invitation.path,
         name: AppRoute.invitation.name,
         builder: (context, state) {
-          // On récupère le token soit depuis les queryParameters (?token=...)
-          // soit depuis le path si besoin. Ici on privilégie le queryParameter pour fiestapp://invitation?token=...
           final token = state.uri.queryParameters['token'];
           return Invitation(id: token!);
+        },
+      ),
+      GoRoute(
+        path: AppRoute.askResetPassword.path,
+        name: AppRoute.askResetPassword.name,
+        builder: (context, state) => const AskResetPasswordView(),
+      ),
+      GoRoute(
+        path: AppRoute.resetPassword.path,
+        name: AppRoute.resetPassword.name,
+        builder: (context, state) {
+          final token = state.uri.queryParameters['token'];
+          return ResetPasswordView(token: token!);
         },
       ),
       GoRoute(
