@@ -26,7 +26,7 @@ FiestApp is composed of three main components working in synergy:
 | Component | Tech Stack | Documentation |
 | :--- | :--- | :--- |
 | **Mobile Application** | ![Flutter](https://img.shields.io/badge/Flutter-02569B?style=flat&logo=flutter&logoColor=white) | 📱 This repository |
-| **Main API** | ![NestJs](https://img.shields.io/badge/NestJs-E0234E?style=flat&logo=nestjs&logoColor=white) | [![GitHub](https://img.shields.io/badge/GitHub-181717?style=flat&logo=github&logoColor=white)](https://github.com/LeoMa33/fiestapp-api) |
+| **Main API** | ![NestJs](https://img.shields.io/badge/NestJs-E0234E?style=flat&logo=nestjs&logoColor=white) | [![GitHub](https://img.shields.io/badge/GitHub-181717?style=flat&logo=github&logoColor=white)](https://github.com/Manon-Arc/FiestApp_Api) |
 | **AI MicroService** | ![Python](https://img.shields.io/badge/Python-3776AB?style=flat&logo=python&logoColor=white) | [![GitHub](https://img.shields.io/badge/GitHub-181717?style=flat&logo=github&logoColor=white)](https://github.com/Manon-Arc/FiestAppService) |
 
 ---
