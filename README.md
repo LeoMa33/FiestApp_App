@@ -205,4 +205,4 @@ Les **recommandations IA** (estimations) sont obtenues via l'API FiestApp (NestJ
 
 ---
 
-> Développé avec ❤️ pour l'écosystème **[FiestApp](https://github.com/LeoMa33/FiestApp_Api)**.
+> Développé avec ❤️ pour l'écosystème **[FiestApp](https://github.com/Manon-Arc/FiestApp_Api)**.
